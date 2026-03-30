@@ -1,0 +1,51 @@
+[package]
+name = "codewhisper"
+version = "0.1.0"
+description = "CodeWhisper — AI-powered coding interview coach"
+authors = ["CodeWhisper"]
+edition = "2021"
+
+[lib]
+name = "codewhisper_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2"
+tauri-plugin-store = "2"
+tauri-plugin-window-state = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite"] }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+anyhow = "1"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+base64 = "0.22"
+image = "0.25"
+
+# Screen capture (macOS/Windows/Linux)
+screenshots = "0.8"
+
+# OCR via tesseract
+rusty-tesseract = "1.1"
+
+# Whisper.cpp bindings — feature-gated so the project compiles without
+# pre-built libs; swap for whisper-rs when libs are available
+# whisper-rs = { version = "0.11", optional = true }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+# whisper = ["whisper-rs"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
