@@ -10,19 +10,19 @@ export function PatternCard({ pattern, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 rounded-xl bg-dark-700/60
-                 hover:bg-dark-600 border border-white/5 hover:border-white/10
+      className="w-full text-left px-3 py-2.5 rounded-xl bg-surface-raised
+                 hover:bg-surface-muted border border-surface-border/30 hover:border-surface-border/60
                  transition-all group"
     >
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xs font-semibold text-white/80">{pattern.name}</span>
-            <span className="text-[10px] text-white/30 bg-dark-500 px-1.5 py-0.5 rounded">
+            <span className="text-xs font-semibold text-tx-primary">{pattern.name}</span>
+            <span className="text-[10px] text-tx-tertiary bg-surface-overlay px-1.5 py-0.5 rounded">
               {pattern.category}
             </span>
           </div>
-          <p className="text-[11px] text-white/40 leading-snug truncate">
+          <p className="text-[11px] text-tx-tertiary leading-snug truncate">
             {pattern.description}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
@@ -36,7 +36,7 @@ export function PatternCard({ pattern, onClick }: Props) {
         </div>
         <ChevronRight
           size={14}
-          className="text-white/20 group-hover:text-white/50 transition-colors ml-2 flex-shrink-0"
+          className="text-tx-tertiary group-hover:text-tx-secondary transition-colors ml-2 flex-shrink-0"
         />
       </div>
     </button>

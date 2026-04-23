@@ -28,13 +28,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get the authenticated user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    // Get the authenticated user from the user token header
+    const userToken = req.headers.get("x-user-token") ?? req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (!userToken) throw new Error("No user token");
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error("Unauthorized");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(userToken);
+    if (authError || !user) throw new Error(`Unauthorized: ${authError?.message}`);
 
     const { plan_id } = await req.json();
     const priceId = PRICE_IDS[plan_id];
@@ -60,13 +59,14 @@ serve(async (req) => {
     }
 
     // Create checkout session
+    const appUrl = Deno.env.get("APP_REDIRECT_URL") ?? "http://localhost:1420";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       mode: plan_id === "pro_lifetime" ? "payment" : "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${Deno.env.get("APP_REDIRECT_URL") ?? "codewhisper://"}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${Deno.env.get("APP_REDIRECT_URL") ?? "codewhisper://"}?checkout=cancelled`,
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}?checkout=cancelled`,
       metadata: { supabase_uid: user.id, plan_id },
     });
 

@@ -11,6 +11,7 @@
   },
   "app": {
     "withGlobalTauri": true,
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "CodeWhisper",
@@ -64,9 +65,5 @@
       "providerShortName": null
     }
   },
-  "plugins": {
-    "store": {
-      "autoSave": 300
-    }
-  }
+  "plugins": {}
 }

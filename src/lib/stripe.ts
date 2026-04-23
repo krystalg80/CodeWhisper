@@ -40,22 +40,25 @@ export type PlanId = keyof typeof STRIPE_PLANS;
 export async function createCheckoutSession(planId: PlanId): Promise<string> {
   if (!supabase) throw new Error("Supabase not configured");
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session) throw new Error("Must be signed in to subscribe");
+  const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+  if (sessionError || !session) throw new Error("Session expired — please sign out and sign in again");
 
-  const { data, error } = await supabase.functions.invoke<CheckoutSession>(
-    "create-checkout",
-    {
-      body: { plan_id: planId },
-    }
-  );
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  const res = await fetch(`/functions/v1/create-checkout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${anonKey}`,
+      "x-user-token": session.access_token,
+    },
+    body: JSON.stringify({ plan_id: planId }),
+  });
 
-  if (error) throw new Error(`Checkout error: ${error.message}`);
-  if (!data?.url) throw new Error("No checkout URL returned");
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error ?? json.message ?? JSON.stringify(json));
+  if (!json.url) throw new Error("No checkout URL returned");
 
-  return data.url;
+  return json.url;
 }
 
 /**

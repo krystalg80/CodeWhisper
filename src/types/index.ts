@@ -21,6 +21,8 @@ export interface ChatMessage {
   content: string;
   hint_level?: number;
   timestamp: string;
+  is_auto?: boolean;     // true for interview-mode auto-generated messages (not persisted)
+  is_revealed?: boolean; // true when the full solution was revealed after 15 attempts
 }
 
 // ── Claude ────────────────────────────────────────────────────────────────────

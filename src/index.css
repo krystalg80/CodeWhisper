@@ -2,71 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS Variables — Midnight (dark) ──────────────────────────────────── */
+:root {
+  --bg-base:       #0d1117;
+  --bg-raised:     #161b22;
+  --bg-overlay:    #1c2128;
+  --bg-muted:      #21262d;
+  --border:        rgba(48, 54, 61, 0.8);
+
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-tertiary:  #484f58;
+
+  --accent-blue:   #58a6ff;
+  --accent-purple: #bc8cff;
+  --accent-teal:   #39d353;
+  --accent-amber:  #e3b341;
+  --accent-red:    #f85149;
+
+  /* RGB channels for accent colors (used with Tailwind opacity modifiers) */
+  --rgb-blue:   88 166 255;
+  --rgb-purple: 188 140 255;
+  --rgb-teal:   57 211 83;
+  --rgb-amber:  227 179 65;
+  --rgb-red:    248 81 73;
+
+  --hint-1: #39d353;
+  --hint-2: #58a6ff;
+  --hint-3: #e3b341;
+  --hint-4: #f85149;
+
+  --shadow-overlay: 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ── CSS Variables — Cream (light) ───────────────────────────────────── */
+.light {
+  --bg-base:       #f0ece6;
+  --bg-raised:     #faf8f5;
+  --bg-overlay:    #e8e2da;
+  --bg-muted:      #e0d9d0;
+  --border:        rgba(140, 125, 108, 0.5);
+
+  --text-primary:   #18140f;
+  --text-secondary: #4a3f33;
+  --text-tertiary:  #7a6e64;
+
+  --accent-blue:   #1d4ed8;
+  --accent-purple: #6d28d9;
+  --accent-teal:   #047857;
+  --accent-amber:  #b45309;
+  --accent-red:    #b91c1c;
+
+  /* RGB channels for accent colors in light mode */
+  --rgb-blue:   29 78 216;
+  --rgb-purple: 109 40 217;
+  --rgb-teal:   4 120 87;
+  --rgb-amber:  180 83 9;
+  --rgb-red:    185 28 28;
+
+  --hint-1: #047857;
+  --hint-2: #1d4ed8;
+  --hint-3: #b45309;
+  --hint-4: #b91c1c;
+
+  --shadow-overlay: 0 8px 32px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12);
+}
+
 @layer base {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
   body {
     background: transparent;
-    color: #e5e7eb;
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     user-select: none;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #3d3d55;
-    border-radius: 2px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #7c3aed;
-  }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+  textarea, input, p, .selectable { user-select: text; }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #7c3aed, #3b82f6);
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .glass {
-    background: rgba(17, 17, 24, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: color-mix(in srgb, var(--bg-base) 96%, transparent);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
   }
 
-  .glass-border {
-    border: 1px solid rgba(255, 255, 255, 0.07);
+  .glass-border { border: 1px solid var(--border); }
+
+  [data-tauri-drag-region] { -webkit-app-region: drag; cursor: move; }
+  .no-drag { -webkit-app-region: no-drag; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
   }
 
-  .drag-region {
-    -webkit-app-region: drag;
-  }
+  /* Semantic color utilities using CSS vars */
+  .bg-base    { background-color: var(--bg-base); }
+  .bg-raised  { background-color: var(--bg-raised); }
+  .bg-overlay { background-color: var(--bg-overlay); }
+  .bg-muted   { background-color: var(--bg-muted); }
 
-  .no-drag {
-    -webkit-app-region: no-drag;
-  }
+  .text-primary   { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-tertiary  { color: var(--text-tertiary); }
 
-  /* Tauri window drag handle */
-  [data-tauri-drag-region] {
-    -webkit-app-region: drag;
-    cursor: move;
-  }
+  .border-theme       { border-color: var(--border); }
+  .border-theme-subtle { border-color: var(--border-subtle); }
+
+  .c-accent-blue   { color: var(--accent-blue); }
+  .c-accent-purple { color: var(--accent-purple); }
+  .c-accent-teal   { color: var(--accent-teal); }
+  .c-accent-amber  { color: var(--accent-amber); }
+  .c-accent-red    { color: var(--accent-red); }
+
+  .shadow-overlay { box-shadow: var(--shadow-overlay); }
+
+  /* ── Force semantic color classes to use CSS variables ──────────────── */
+  /* Tailwind wraps CSS-var colors in rgb() which breaks them; these fix it */
+  .bg-surface-base    { background-color: var(--bg-base) !important; }
+  .bg-surface-raised  { background-color: var(--bg-raised) !important; }
+  .bg-surface-overlay { background-color: var(--bg-overlay) !important; }
+  .bg-surface-muted   { background-color: var(--bg-muted) !important; }
+
+  .text-tx-primary   { color: var(--text-primary) !important; }
+  .text-tx-secondary { color: var(--text-secondary) !important; }
+  .text-tx-tertiary  { color: var(--text-tertiary) !important; }
+
+  .text-ca-blue   { color: var(--accent-blue) !important; }
+  .text-ca-purple { color: var(--accent-purple) !important; }
+  .text-ca-teal   { color: var(--accent-teal) !important; }
+  .text-ca-amber  { color: var(--accent-amber) !important; }
+  .text-ca-red    { color: var(--accent-red) !important; }
+
+  .border-surface-border { border-color: var(--border) !important; }
 }

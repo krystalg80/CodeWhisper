@@ -5,14 +5,18 @@ import { open } from "@tauri-apps/plugin-shell";
 
 export function UpgradePrompt() {
   const [loading, setPlanLoading] = useState<PlanId | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleUpgrade = async (planId: PlanId) => {
+    setError(null);
     setPlanLoading(planId);
     try {
       const url = await createCheckoutSession(planId);
       await open(url); // Open Stripe checkout in system browser
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Upgrade failed");
+      const msg = err instanceof Error ? err.message : "Upgrade failed";
+      console.error("[Stripe]", msg);
+      setError(msg);
     } finally {
       setPlanLoading(null);
     }
@@ -20,15 +24,15 @@ export function UpgradePrompt() {
 
   return (
     <div className="flex flex-col h-full items-center justify-center px-4 text-center space-y-4">
-      <div className="w-12 h-12 rounded-full bg-accent-purple/20 flex items-center justify-center">
-        <Zap size={20} className="text-accent-purple" />
+      <div className="w-12 h-12 rounded-full bg-ca-purple/20 flex items-center justify-center">
+        <Zap size={20} className="text-ca-purple" />
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-white/90">
+        <h2 className="text-sm font-semibold text-tx-primary">
           You've used 3 free sessions
         </h2>
-        <p className="text-xs text-white/40 mt-1 max-w-[240px]">
+        <p className="text-xs text-tx-tertiary mt-1 max-w-[240px]">
           Upgrade to CodeWhisper Pro for unlimited sessions, full hint ladder, and session history.
         </p>
       </div>
@@ -40,27 +44,27 @@ export function UpgradePrompt() {
               key={planId}
               onClick={() => handleUpgrade(planId)}
               disabled={loading !== null}
-              className="w-full px-4 py-3 rounded-xl border border-accent-purple/30
-                         bg-accent-purple/10 hover:bg-accent-purple/20
+              className="w-full px-4 py-3 rounded-xl border border-ca-purple/30
+                         bg-ca-purple/10 hover:bg-ca-purple/20
                          transition-colors text-left group disabled:opacity-60"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-white/80">{plan.name}</p>
-                  <p className="text-[11px] text-accent-purple mt-0.5">{plan.price}</p>
+                  <p className="text-xs font-semibold text-tx-primary">{plan.name}</p>
+                  <p className="text-[11px] text-ca-purple mt-0.5">{plan.price}</p>
                 </div>
                 {loading === planId ? (
-                  <Loader2 size={14} className="animate-spin text-white/40" />
+                  <Loader2 size={14} className="animate-spin text-tx-tertiary" />
                 ) : (
                   <ExternalLink
                     size={13}
-                    className="text-white/30 group-hover:text-white/60 transition-colors"
+                    className="text-tx-tertiary group-hover:text-tx-secondary transition-colors"
                   />
                 )}
               </div>
               <ul className="mt-2 space-y-0.5">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-1.5 text-[11px] text-white/50">
+                  <li key={f} className="flex items-center gap-1.5 text-[11px] text-tx-secondary">
                     <CheckCircle size={10} className="text-green-400/60" />
                     {f}
                   </li>
@@ -71,7 +75,17 @@ export function UpgradePrompt() {
         )}
       </div>
 
-      <p className="text-[10px] text-white/25">
+      {error && (
+        <div className="w-full px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30">
+          <p className="text-[10px] text-red-400 break-words">{error}</p>
+        </div>
+      )}
+
+      <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+        Already paid? Visit <strong>Settings → License</strong> to enter your key.
+      </p>
+
+      <p className="text-[10px] text-tx-tertiary">
         Payments processed securely by Stripe. Cancel anytime.
       </p>
     </div>

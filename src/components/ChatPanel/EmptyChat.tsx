@@ -1,10 +1,6 @@
 import { MessageSquare, KeyRound } from "lucide-react";
 import { useSessionStore } from "@/stores/sessionStore";
 
-interface Props {
-  hasApiKey: boolean;
-}
-
 const SUGGESTIONS = [
   "What should I start with?",
   "I don't understand the problem",
@@ -12,45 +8,49 @@ const SUGGESTIONS = [
   "What pattern does this use?",
 ];
 
-export function EmptyChat({ hasApiKey }: Props) {
+export function EmptyChat({ hasApiKey }: { hasApiKey: boolean }) {
   const { sendMessage } = useSessionStore();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full py-8 text-center space-y-3">
-      <div className="w-10 h-10 rounded-full bg-accent-purple/10 flex items-center justify-center">
-        {hasApiKey ? (
-          <MessageSquare size={18} className="text-accent-purple/60" />
-        ) : (
-          <KeyRound size={18} className="text-amber-400/60" />
-        )}
+    <div className="flex flex-col items-center justify-center h-full py-6 text-center space-y-3 px-4">
+      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center
+        ${hasApiKey ? "bg-ca-purple/10 border border-ca-purple/20" : "bg-surface-muted border border-surface-border"}`}
+      >
+        {hasApiKey
+          ? <MessageSquare size={16} className="text-ca-purple/70" />
+          : <KeyRound size={16} className="text-ca-amber/70" />
+        }
       </div>
 
       {hasApiKey ? (
         <>
-          <p className="text-sm text-white/50 font-medium">Ready to coach</p>
-          <p className="text-xs text-white/30 max-w-[220px]">
-            Paste your problem in the Problem tab, then ask me anything — or
-            request a hint below.
-          </p>
-          <div className="mt-2 space-y-1.5 text-left w-full max-w-[240px]">
-            {SUGGESTIONS.map((suggestion) => (
+          <div>
+            <p className="text-sm font-medium text-tx-primary">Ready to coach</p>
+            <p className="text-xs text-tx-secondary mt-1 leading-relaxed">
+              Paste your problem in the Problem tab, then ask anything below.
+            </p>
+          </div>
+          <div className="w-full space-y-1.5 mt-1">
+            {SUGGESTIONS.map((s) => (
               <button
-                key={suggestion}
-                onClick={() => sendMessage(suggestion)}
-                className="w-full text-left text-xs px-3 py-1.5 rounded-lg
-                           bg-dark-600 text-white/50 hover:text-white/80 hover:bg-dark-500
-                           transition-colors"
+                key={s}
+                onClick={() => sendMessage(s)}
+                className="w-full text-left text-xs px-3 py-2 rounded-xl
+                           bg-surface-raised border border-surface-border/60
+                           text-tx-secondary hover:text-tx-primary
+                           hover:border-ca-blue/30 hover:bg-surface-overlay
+                           transition-all"
               >
-                {suggestion}
+                {s}
               </button>
             ))}
           </div>
         </>
       ) : (
         <>
-          <p className="text-sm text-white/50 font-medium">API key required</p>
-          <p className="text-xs text-white/30 max-w-[220px]">
-            Open Settings and add your Anthropic API key to enable AI coaching.
+          <p className="text-sm font-medium text-tx-primary">API key required</p>
+          <p className="text-xs text-tx-secondary leading-relaxed max-w-[200px]">
+            Open Settings (gear icon) and add your Anthropic API key.
           </p>
         </>
       )}

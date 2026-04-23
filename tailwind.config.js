@@ -1,43 +1,54 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        dark: {
-          900: "#0a0a0f",
-          800: "#111118",
-          700: "#1a1a24",
-          600: "#222230",
-          500: "#2d2d40",
-          400: "#3d3d55",
+        // These map to CSS variables — both themes work automatically
+        surface: {
+          base:    "var(--bg-base)",
+          raised:  "var(--bg-raised)",
+          overlay: "var(--bg-overlay)",
+          muted:   "var(--bg-muted)",
+          border:  "var(--border)",
         },
-        accent: {
-          purple: "#7c3aed",
-          blue: "#3b82f6",
-          green: "#10b981",
-          amber: "#f59e0b",
-          red: "#ef4444",
+        tx: {
+          primary:   "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          tertiary:  "var(--text-tertiary)",
+        },
+        ca: {
+          blue:   "rgb(var(--rgb-blue) / <alpha-value>)",
+          purple: "rgb(var(--rgb-purple) / <alpha-value>)",
+          teal:   "rgb(var(--rgb-teal) / <alpha-value>)",
+          amber:  "rgb(var(--rgb-amber) / <alpha-value>)",
+          red:    "rgb(var(--rgb-red) / <alpha-value>)",
+        },
+        hint: {
+          1: "var(--hint-1)",
+          2: "var(--hint-2)",
+          3: "var(--hint-3)",
+          4: "var(--hint-4)",
         },
       },
       fontFamily: {
         mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
       },
       animation: {
-        "fade-in": "fadeIn 0.2s ease-in-out",
-        "slide-up": "slideUp 0.3s ease-out",
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-in":    "fadeIn 0.15s ease-out",
+        "slide-up":   "slideUp 0.2s ease-out",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
+        fadeIn:  { "0%": { opacity: "0" },  "100%": { opacity: "1" } },
         slideUp: {
-          "0%": { transform: "translateY(8px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%":   { transform: "translateY(6px)", opacity: "0" },
+          "100%": { transform: "translateY(0)",   opacity: "1" },
         },
+      },
+      boxShadow: {
+        overlay: "var(--shadow-overlay)",
       },
     },
   },

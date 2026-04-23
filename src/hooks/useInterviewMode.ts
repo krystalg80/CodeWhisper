@@ -1,0 +1,62 @@
+import { useEffect, useRef } from "react";
+import { useAppStore } from "@/stores/appStore";
+import { useSessionStore } from "@/stores/sessionStore";
+import { captureScreen, extractTextFromScreenshot } from "@/lib/tauri";
+
+
+const POLL_INTERVAL_MS = 12_000;
+const CHANGE_THRESHOLD_CHARS = 15;
+const MAX_SILENCE_MS = 45_000; // send even if no change after this long
+
+export function useInterviewMode() {
+  const { isInterviewMode } = useAppStore();
+  const { sendAutoCoach, solutionRevealed } = useSessionStore();
+
+  const lastTextRef = useRef("");
+  const lastCoachTimeRef = useRef(0);
+  const isRunningRef = useRef(false);
+
+  useEffect(() => {
+    if (!isInterviewMode) {
+      lastTextRef.current = "";
+      lastCoachTimeRef.current = 0;
+      return;
+    }
+
+    const tick = async () => {
+      if (isRunningRef.current) return;
+      isRunningRef.current = true;
+      try {
+        const screenshot = await captureScreen();
+        const ocr = await extractTextFromScreenshot(screenshot.base64_png);
+        const newText = ocr.text.trim();
+
+        const charDelta = Math.abs(newText.length - lastTextRef.current.length);
+        const msSinceCoach = Date.now() - lastCoachTimeRef.current;
+        // After solution is revealed, only coach on real code changes — never on silence
+        const shouldCoach =
+          charDelta >= CHANGE_THRESHOLD_CHARS ||
+          (!solutionRevealed && lastCoachTimeRef.current > 0 && msSinceCoach >= MAX_SILENCE_MS);
+
+        if (shouldCoach) {
+          lastTextRef.current = newText;
+          lastCoachTimeRef.current = Date.now();
+          await sendAutoCoach(newText);
+        } else if (lastCoachTimeRef.current === 0) {
+          // First tick — record baseline but don't send yet
+          lastTextRef.current = newText;
+          lastCoachTimeRef.current = Date.now();
+        }
+      } catch (err) {
+        console.error("Interview mode tick failed:", err);
+      } finally {
+        isRunningRef.current = false;
+      }
+    };
+
+    // Run immediately on activation, then on interval
+    tick();
+    const id = setInterval(tick, POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [isInterviewMode, sendAutoCoach, solutionRevealed]);
+}

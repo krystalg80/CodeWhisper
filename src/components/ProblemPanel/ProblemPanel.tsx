@@ -49,12 +49,12 @@ export function ProblemPanel() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-surface-border/60">
         <button
           onClick={handleScreenCapture}
           disabled={ocrLoading}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs
-                     bg-dark-600 hover:bg-dark-500 text-white/70 hover:text-white
+                     bg-surface-raised hover:bg-surface-muted text-tx-secondary hover:text-tx-primary
                      transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title="Capture screen and extract problem via OCR"
         >
@@ -70,7 +70,7 @@ export function ProblemPanel() {
           onClick={handleAnalyze}
           disabled={isAnalyzing || !problemText.trim()}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs
-                     bg-accent-purple/20 hover:bg-accent-purple/30 text-accent-purple
+                     bg-ca-purple/20 hover:bg-ca-purple/30 text-ca-purple
                      transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title="Analyze problem with AI"
         >
@@ -85,7 +85,7 @@ export function ProblemPanel() {
         {problemText && (
           <button
             onClick={() => setProblemText("")}
-            className="ml-auto text-white/30 hover:text-white/60 transition-colors"
+            className="ml-auto text-tx-tertiary hover:text-tx-secondary transition-colors"
             title="Clear"
           >
             <X size={14} />
@@ -108,8 +108,8 @@ export function ProblemPanel() {
           placeholder="Paste or capture the problem statement here...
 
 The AI coach will help you think through it — step by step."
-          className="w-full bg-transparent text-white/80 text-xs leading-relaxed
-                     resize-none outline-none placeholder:text-white/20
+          className="w-full bg-transparent text-tx-primary text-xs leading-relaxed
+                     resize-none outline-none placeholder:text-tx-tertiary
                      min-h-[120px]"
           style={{ fontFamily: "inherit" }}
         />
@@ -117,10 +117,10 @@ The AI coach will help you think through it — step by step."
         {/* AI Analysis results */}
         {analysis && (
           <div className="mt-4 space-y-3 animate-slide-up">
-            <div className="h-px bg-white/5" />
+            <div className="h-px bg-surface-border/60" />
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-tx-tertiary uppercase tracking-wider">
                 Analysis
               </h3>
               <span
@@ -137,16 +137,16 @@ The AI coach will help you think through it — step by step."
               </span>
             </div>
 
-            <p className="text-sm text-white/80 font-medium">{analysis.problem_title}</p>
+            <p className="text-sm text-tx-primary font-medium">{analysis.problem_title}</p>
 
             {analysis.patterns.length > 0 && (
               <div>
-                <p className="text-xs text-white/40 mb-1.5">Patterns detected:</p>
+                <p className="text-xs text-tx-tertiary mb-1.5">Patterns detected:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {analysis.patterns.map((p) => (
                     <span
                       key={p}
-                      className="text-xs px-2 py-0.5 rounded-md bg-accent-blue/20 text-accent-blue"
+                      className="text-xs px-2 py-0.5 rounded-md bg-ca-blue/20 text-ca-blue"
                     >
                       {p}
                     </span>
@@ -157,11 +157,11 @@ The AI coach will help you think through it — step by step."
 
             {analysis.key_constraints.length > 0 && (
               <div>
-                <p className="text-xs text-white/40 mb-1.5">Key constraints:</p>
+                <p className="text-xs text-tx-tertiary mb-1.5">Key constraints:</p>
                 <ul className="space-y-0.5">
                   {analysis.key_constraints.map((c, i) => (
-                    <li key={i} className="text-xs text-white/60 flex items-start gap-1.5">
-                      <span className="text-accent-purple mt-0.5">›</span>
+                    <li key={i} className="text-xs text-tx-secondary flex items-start gap-1.5">
+                      <span className="text-ca-purple mt-0.5">›</span>
                       {c}
                     </li>
                   ))}
@@ -171,12 +171,12 @@ The AI coach will help you think through it — step by step."
 
             {analysis.suggested_data_structures.length > 0 && (
               <div>
-                <p className="text-xs text-white/40 mb-1.5">Consider using:</p>
+                <p className="text-xs text-tx-tertiary mb-1.5">Consider using:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {analysis.suggested_data_structures.map((ds) => (
                     <span
                       key={ds}
-                      className="text-xs px-2 py-0.5 rounded-md bg-dark-500 text-white/60"
+                      className="text-xs px-2 py-0.5 rounded-md bg-surface-overlay text-tx-secondary"
                     >
                       {ds}
                     </span>

@@ -39,3 +39,27 @@ export async function getUser() {
   const { data } = await supabase.auth.getUser();
   return data.user;
 }
+
+export async function checkUserLicense(userId: string): Promise<boolean> {
+  if (!supabase) return false;
+
+  // Check by user_id first, then fall back to email (handles multiple auth providers)
+  const { data: byId } = await supabase
+    .from("licenses")
+    .select("is_active")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (byId) return true;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return false;
+
+  const { data: byEmail } = await supabase
+    .from("licenses")
+    .select("is_active")
+    .eq("email", user.email)
+    .eq("is_active", true)
+    .maybeSingle();
+  return !!byEmail;
+}

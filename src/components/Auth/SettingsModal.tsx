@@ -1,33 +1,18 @@
 import { useState } from "react";
-import { X, Eye, EyeOff, Key, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { X, CheckCircle, AlertCircle, Loader2, Sun, Moon, LogOut } from "lucide-react";
 import { useAppStore } from "@/stores/appStore";
 import { validateLicenseKey } from "@/lib/tauri";
+import { signOut } from "@/lib/supabase";
 
-interface Props {
-  onClose: () => void;
-}
-
-export function SettingsModal({ onClose }: Props) {
-  const { settings, updateSettings, isPro, setIsPro } = useAppStore();
-  const [apiKey, setApiKey] = useState(settings.apiKey);
-  const [showKey, setShowKey] = useState(false);
+export function SettingsModal({ onClose }: { onClose: () => void }) {
+  const { settings, updateSettings, isPro, setIsPro, theme, toggleTheme, setUser } = useAppStore();
   const [licenseKey, setLicenseKey] = useState("");
-  const [licenseStatus, setLicenseStatus] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-  const [validatingLicense, setValidatingLicense] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    updateSettings({ apiKey });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  const [licenseStatus, setLicenseStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [validating, setValidating] = useState(false);
 
   const handleValidateLicense = async () => {
     if (!licenseKey.trim()) return;
-    setValidatingLicense(true);
+    setValidating(true);
     setLicenseStatus(null);
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
@@ -40,116 +25,113 @@ export function SettingsModal({ onClose }: Props) {
         setLicenseStatus({ type: "error", message: result.message });
       }
     } catch (err) {
-      setLicenseStatus({
-        type: "error",
-        message: err instanceof Error ? err.message : "Validation failed",
-      });
+      setLicenseStatus({ type: "error", message: err instanceof Error ? err.message : "Validation failed" });
     } finally {
-      setValidatingLicense(false);
+      setValidating(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
-      <div className="relative w-[360px] max-h-[80vh] glass glass-border rounded-2xl
-                      shadow-2xl overflow-hidden animate-slide-up">
+      <div
+        className="relative w-[340px] max-h-[80vh] rounded-2xl shadow-overlay overflow-hidden animate-slide-up"
+        style={{ background: "var(--bg-base)", border: "1px solid var(--border)" }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white/80">Settings</h2>
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white/70 transition-colors"
-          >
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
+          <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Settings</h2>
+          <button onClick={onClose} style={{ color: "var(--text-tertiary)" }}
+            className="hover:opacity-80 transition-opacity">
             <X size={16} />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-4 py-4 space-y-5">
-          {/* API Key */}
+        <div className="overflow-y-auto px-4 py-4 space-y-5 pb-2">
+          {/* Theme */}
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider flex items-center gap-1.5">
-              <Key size={11} />
-              Claude API Key
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+              Appearance
             </h3>
-            <p className="text-xs text-white/30">
-              Your key is stored locally and only used to call the Anthropic API.
-              It never leaves your device except in that API call.
-            </p>
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center bg-dark-600 rounded-lg
-                             border border-white/5 focus-within:border-accent-purple/40
-                             overflow-hidden">
-                <input
-                  type={showKey ? "text" : "password"}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="sk-ant-..."
-                  className="flex-1 bg-transparent px-3 py-2 text-xs text-white/70
-                             outline-none placeholder:text-white/25"
-                />
+              {(["dark", "light"] as const).map((t) => (
                 <button
-                  onClick={() => setShowKey((v) => !v)}
-                  className="px-2 text-white/30 hover:text-white/60 transition-colors"
+                  key={t}
+                  onClick={() => theme !== t && toggleTheme()}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all"
+                  style={{
+                    background: theme === t ? "color-mix(in srgb, var(--accent-blue) 15%, transparent)" : "var(--bg-raised)",
+                    border: `1px solid ${theme === t ? "color-mix(in srgb, var(--accent-blue) 40%, transparent)" : "var(--border)"}`,
+                    color: theme === t ? "var(--accent-blue)" : "var(--text-secondary)",
+                  }}
                 >
-                  {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
+                  {t === "dark" ? <Moon size={12} /> : <Sun size={12} />}
+                  {t === "dark" ? "Midnight" : "Cream"}
                 </button>
-              </div>
-              <button
-                onClick={handleSave}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors
-                  ${saved
-                    ? "bg-green-500/20 text-green-400"
-                    : "bg-accent-purple text-white hover:bg-accent-purple/80"
-                  }`}
-              >
-                {saved ? <CheckCircle size={14} /> : "Save"}
-              </button>
+              ))}
             </div>
           </section>
 
-          {/* Capture settings */}
+          {/* Opacity */}
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+            <div className="flex items-center justify-between">
+              <label className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                Overlay opacity
+              </label>
+              <span className="text-xs font-mono" style={{ color: "var(--text-tertiary)" }}>
+                {settings.overlayOpacity}%
+              </span>
+            </div>
+            <input
+              type="range" min={30} max={100} step={5}
+              value={settings.overlayOpacity}
+              onChange={(e) => updateSettings({ overlayOpacity: Number(e.target.value) })}
+              className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+              style={{ accentColor: "var(--accent-blue)" }}
+            />
+            <div className="flex justify-between text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+              <span>Ghost</span>
+              <span>Solid</span>
+            </div>
+          </section>
+
+          {/* Capture */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
               Screen Capture
             </h3>
             <div className="flex items-center justify-between">
-              <label className="text-xs text-white/60">
+              <label className="text-xs" style={{ color: "var(--text-secondary)" }}>
                 Capture interval (seconds)
               </label>
               <input
-                type="number"
-                min={2}
-                max={60}
+                type="number" min={2} max={60}
                 value={settings.captureIntervalSeconds}
-                onChange={(e) =>
-                  updateSettings({ captureIntervalSeconds: Number(e.target.value) })
-                }
-                className="w-16 bg-dark-600 rounded px-2 py-1 text-xs text-white/70
-                           outline-none border border-white/5 text-right"
+                onChange={(e) => updateSettings({ captureIntervalSeconds: Number(e.target.value) })}
+                className="w-16 rounded-lg px-2 py-1 text-xs text-right outline-none"
+                style={{
+                  background: "var(--bg-muted)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-primary)",
+                }}
               />
             </div>
           </section>
 
           {/* License */}
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
               License
             </h3>
             {isPro ? (
-              <div className="flex items-center gap-2 text-xs text-green-400">
+              <div className="flex items-center gap-2 text-xs" style={{ color: "var(--accent-teal)" }}>
                 <CheckCircle size={13} />
-                Pro license active
+                Pro license active — unlimited sessions
               </div>
             ) : (
               <>
-                <p className="text-xs text-white/30">
+                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
                   Enter your license key after purchase to unlock unlimited sessions.
                 </p>
                 <div className="flex gap-2">
@@ -157,39 +139,54 @@ export function SettingsModal({ onClose }: Props) {
                     value={licenseKey}
                     onChange={(e) => setLicenseKey(e.target.value)}
                     placeholder="CW-XXXX-XXXX-XXXX"
-                    className="flex-1 bg-dark-600 rounded-lg px-3 py-2 text-xs text-white/70
-                               border border-white/5 focus:border-accent-purple/40
-                               outline-none"
+                    className="flex-1 rounded-xl px-3 py-2 text-xs outline-none"
+                    style={{
+                      background: "var(--bg-muted)",
+                      border: "1px solid var(--border)",
+                      color: "var(--text-primary)",
+                    }}
                   />
                   <button
                     onClick={handleValidateLicense}
-                    disabled={validatingLicense || !licenseKey.trim()}
-                    className="px-3 py-2 bg-accent-purple text-white text-xs rounded-lg
-                               hover:bg-accent-purple/80 transition-colors
-                               disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={validating || !licenseKey.trim()}
+                    className="px-3 py-2 rounded-xl text-xs font-medium transition-colors disabled:opacity-40"
+                    style={{ background: "var(--accent-purple)", color: "#fff" }}
                   >
-                    {validatingLicense ? (
-                      <Loader2 size={13} className="animate-spin" />
-                    ) : (
-                      "Activate"
-                    )}
+                    {validating ? <Loader2 size={13} className="animate-spin" /> : "Activate"}
                   </button>
                 </div>
                 {licenseStatus && (
-                  <div
-                    className={`flex items-center gap-1.5 text-xs
-                      ${licenseStatus.type === "success" ? "text-green-400" : "text-red-400"}`}
-                  >
-                    {licenseStatus.type === "success" ? (
-                      <CheckCircle size={12} />
-                    ) : (
-                      <AlertCircle size={12} />
-                    )}
+                  <div className="flex items-center gap-1.5 text-xs"
+                    style={{ color: licenseStatus.type === "success" ? "var(--accent-teal)" : "var(--accent-red)" }}>
+                    {licenseStatus.type === "success" ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
                     {licenseStatus.message}
                   </div>
                 )}
               </>
             )}
+          </section>
+          {/* Account */}
+          <section className="space-y-2 pt-1">
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+              Account
+            </h3>
+            <button
+              onClick={async () => {
+                await signOut();
+                setUser(null);
+                setIsPro(false);
+                onClose();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-colors"
+              style={{
+                background: "var(--bg-raised)",
+                border: "1px solid var(--border)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              <LogOut size={13} />
+              Sign out
+            </button>
           </section>
         </div>
       </div>

@@ -18,7 +18,7 @@ const PANELS: Record<PanelTab, React.ComponentType> = {
 };
 
 export function ExpandedPanel() {
-  const { activeTab, isPro, freeSessionsRemaining } = useAppStore();
+  const { activeTab, isPro, freeSessionsRemaining, settings } = useAppStore();
 
   const ActivePanel = PANELS[activeTab];
   const showUpgrade = !isPro && freeSessionsRemaining <= 0;
@@ -26,20 +26,15 @@ export function ExpandedPanel() {
   return (
     <div
       className="flex flex-col w-full h-full glass glass-border rounded-2xl
-                 shadow-2xl shadow-black/60 animate-fade-in overflow-hidden"
-      style={{ maxHeight: "100vh" }}
+                 shadow-overlay animate-fade-in overflow-hidden"
+      style={{ opacity: settings.overlayOpacity / 100 }}
     >
-      {/* Drag handle — title bar */}
       <div data-tauri-drag-region className="flex-shrink-0">
         <TitleBar />
       </div>
-
-      {/* Tab navigation */}
       <div className="flex-shrink-0">
         <TabBar />
       </div>
-
-      {/* Active panel */}
       <div className="flex-1 overflow-hidden">
         {showUpgrade && activeTab === "chat" ? (
           <UpgradePrompt />

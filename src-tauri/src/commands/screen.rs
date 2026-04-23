@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use image::ImageEncoder;
 use screenshots::Screen;
 use serde::Serialize;
 use tauri::command;
@@ -11,8 +12,8 @@ pub struct ScreenshotResult {
     pub screen_index: usize,
 }
 
-/// Capture the primary (or all) screen(s) and return base64-encoded PNG data.
-/// All processing is local — the raw image bytes never leave the device.
+/// Capture the primary (or specified) screen and return a base64-encoded PNG.
+/// All processing is local — raw pixels never leave the device.
 /// Only the OCR-extracted text is ever sent to external APIs.
 #[command]
 pub async fn capture_screen(screen_index: Option<usize>) -> Result<ScreenshotResult, String> {
@@ -25,30 +26,38 @@ pub async fn capture_screen(screen_index: Option<usize>) -> Result<ScreenshotRes
     let idx = screen_index.unwrap_or(0).min(screens.len() - 1);
     let screen = &screens[idx];
 
-    let image = screen
+    let rgba_image = screen
         .capture()
         .map_err(|e| format!("Screen capture failed: {e}"))?;
 
-    let png_bytes = image
-        .to_png()
+    let width = rgba_image.width();
+    let height = rgba_image.height();
+
+    // Encode to PNG in memory
+    let mut png_bytes: Vec<u8> = Vec::new();
+    let encoder = image::codecs::png::PngEncoder::new(&mut png_bytes);
+    encoder
+        .write_image(
+            rgba_image.as_raw(),
+            width,
+            height,
+            image::ExtendedColorType::Rgba8,
+        )
         .map_err(|e| format!("PNG encoding failed: {e}"))?;
 
     let base64_png = STANDARD.encode(&png_bytes);
 
     Ok(ScreenshotResult {
         base64_png,
-        width: image.width(),
-        height: image.height(),
+        width,
+        height,
         screen_index: idx,
     })
 }
 
 /// Returns the title of the currently focused window.
-/// Used to auto-label sessions with the coding platform name.
 #[command]
 pub async fn get_active_window_title() -> Result<String, String> {
-    // Platform-specific: on macOS we use AppleScript via shell,
-    // on other platforms we return a fallback.
     #[cfg(target_os = "macos")]
     {
         let output = std::process::Command::new("osascript")
@@ -65,8 +74,7 @@ pub async fn get_active_window_title() -> Result<String, String> {
             )
             .output()
             .map_err(|e| format!("osascript failed: {e}"))?;
-        let title = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        return Ok(title);
+        return Ok(String::from_utf8_lossy(&output.stdout).trim().to_string());
     }
 
     #[cfg(not(target_os = "macos"))]

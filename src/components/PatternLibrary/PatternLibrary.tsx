@@ -23,15 +23,15 @@ export function PatternLibrary() {
   return (
     <div className="flex flex-col h-full">
       {/* Search */}
-      <div className="px-3 py-2 border-b border-white/5">
-        <div className="flex items-center gap-2 bg-dark-600 rounded-lg px-2.5 py-1.5">
-          <Search size={12} className="text-white/30" />
+      <div className="px-3 py-2 border-b border-surface-border/60">
+        <div className="flex items-center gap-2 bg-surface-raised rounded-lg px-2.5 py-1.5">
+          <Search size={12} className="text-tx-tertiary" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search patterns..."
-            className="flex-1 bg-transparent text-xs text-white/70 outline-none
-                       placeholder:text-white/25"
+            className="flex-1 bg-transparent text-xs text-tx-secondary outline-none
+                       placeholder:text-tx-tertiary"
           />
         </div>
       </div>
@@ -47,7 +47,7 @@ export function PatternLibrary() {
         ))}
 
         {filtered.length === 0 && (
-          <p className="text-center text-xs text-white/30 py-8">
+          <p className="text-center text-xs text-tx-tertiary py-8">
             No patterns match "{search}"
           </p>
         )}
