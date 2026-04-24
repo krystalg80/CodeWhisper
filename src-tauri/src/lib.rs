@@ -26,6 +26,27 @@ pub fn run() {
             });
 
             app.manage(state);
+
+            // Tray icon click → toggle window visibility
+            if let Some(tray) = app.tray_by_id("main") {
+                let handle = app.handle().clone();
+                tray.on_tray_icon_event(move |_tray, event| {
+                    if let tauri::tray::TrayIconEvent::Click {
+                        button_state: tauri::tray::MouseButtonState::Up,
+                        ..
+                    } = event {
+                        if let Some(win) = handle.get_webview_window("main") {
+                            if win.is_visible().unwrap_or(false) {
+                                let _ = win.hide();
+                            } else {
+                                let _ = win.show();
+                                let _ = win.set_focus();
+                            }
+                        }
+                    }
+                });
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -53,6 +74,29 @@ pub fn run() {
             session::get_session_count,
             session::validate_license_key,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        // Hide instead of close when the window's X button is used
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| match event {
+            // Re-show the window when the dock icon is clicked
+            tauri::RunEvent::Reopen { has_visible_windows, .. } => {
+                if !has_visible_windows {
+                    if let Some(win) = app_handle.get_webview_window("main") {
+                        let _ = win.show();
+                        let _ = win.set_focus();
+                    }
+                }
+            }
+            // Keep the app alive in the background when all windows are hidden
+            tauri::RunEvent::ExitRequested { api, .. } => {
+                api.prevent_exit();
+            }
+            _ => {}
+        });
 }
