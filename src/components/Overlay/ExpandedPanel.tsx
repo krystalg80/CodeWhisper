@@ -18,10 +18,10 @@ const PANELS: Record<PanelTab, React.ComponentType> = {
 };
 
 export function ExpandedPanel() {
-  const { activeTab, isPro, freeSessionsRemaining, settings } = useAppStore();
+  const { activeTab, isPro, trialDaysRemaining, settings } = useAppStore();
 
   const ActivePanel = PANELS[activeTab];
-  const showUpgrade = !isPro && freeSessionsRemaining <= 0;
+  const showUpgrade = !isPro && trialDaysRemaining <= 0;
 
   return (
     <div

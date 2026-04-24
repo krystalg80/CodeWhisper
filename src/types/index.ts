@@ -61,7 +61,6 @@ export interface OcrResult {
 
 export interface SessionCountResult {
   total: number;
-  free_remaining: number;
   is_pro: boolean;
 }
 

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeWhisper — AI Interview Coach</title>
+  <meta name="description" content="CodeWhisper is an AI-powered coding interview coach that floats invisibly over your screen. Socratic hints that guide your thinking — never giving the answer." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF7F0;
+      --navy: #2A1F5A;
+      --purple: #6244D9;
+      --purple-light: rgba(98,68,217,0.1);
+      --purple-border: rgba(98,68,217,0.25);
+      --gray: #6B6B80;
+      --gray-light: #9990C5;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 68px;
+      border-bottom: 1px solid var(--purple-border);
+      background: var(--cream);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      display: none;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span:first-child { font-weight: 300; color: var(--navy); }
+    .logo-text span:last-child  { font-weight: 600; color: var(--purple); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 15px;
+      color: var(--gray);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--navy); }
+
+    .btn-coming-soon {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: default;
+      opacity: 0.85;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 96px 24px 80px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      color: var(--purple);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 58px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 .purple { color: var(--purple); }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--gray);
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: default;
+      opacity: 0.85;
+    }
+
+    .hero-sub {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--gray-light);
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 80px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: var(--purple);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-heading {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--gray);
+      margin-bottom: 56px;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .step-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .step h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--cream);
+      border: 1px solid var(--purple-border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .pricing-card {
+      background: var(--cream);
+      border: 1px solid var(--purple-border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--purple);
+      border-width: 2px;
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--purple);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .plan-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .plan-price {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .plan-period {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--gray);
+      margin-left: 4px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin: 24px 0 28px;
+      space-y: 10px;
+    }
+
+    .plan-features li {
+      font-size: 14px;
+      color: var(--gray);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--purple-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-features li::before {
+      content: "✓";
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .btn-plan {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: var(--purple-light);
+      border: 1px solid var(--purple-border);
+      color: var(--purple);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    .pricing-note {
+      font-size: 13px;
+      color: var(--gray-light);
+      text-align: center;
+    }
+
+    /* FAQ */
+    .faq-list {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--purple-border);
+      padding: 20px 0;
+    }
+
+    .faq-item summary {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-item summary::after {
+      content: "↓";
+      color: var(--purple);
+      font-size: 14px;
+    }
+
+    .faq-item[open] summary::after { content: "↑"; }
+
+    .faq-item p {
+      font-size: 15px;
+      color: var(--gray);
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--cream);
+      border-top: 1px solid var(--purple-border);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--gray);
+    }
+
+    footer a {
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    footer a:hover { color: var(--purple); }
+
+    .footer-links { display: flex; gap: 20px; align-items: center; }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--purple-border);
+      margin: 0 48px;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 60px 20px; }
+      .steps, .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <span class="logo-icon">{}</span>
+    <span class="logo-text">
+      <span>Code</span><span>Whisper</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Blog</a></li>
+  </ul>
+  <button class="btn-coming-soon">Coming Soon</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="eyebrow">AI Coach · Always On Top</p>
+  <h1>Your interview coach,<br><span class="purple">whispering from the corner.</span></h1>
+  <p>Never gives the answer. Always nudges your thinking. Practice LeetCode with Socratic hints that float invisibly over your screen.</p>
+  <button class="btn-primary">Coming Soon for Mac &amp; Windows</button>
+  <p class="hero-sub">Free 7-day trial · No credit card required</p>
+</div>
+
+<hr class="divider" />
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <p class="section-label">How It Works</p>
+  <h2 class="section-heading">Three steps to better interviews</h2>
+  <div class="steps">
+    <div class="step">
+      <p class="step-num">01</p>
+      <h3>Open a problem</h3>
+      <p>Paste in any LeetCode or interview problem. CodeWhisper reads it and gets ready to coach.</p>
+    </div>
+    <div class="step">
+      <p class="step-num">02</p>
+      <h3>Get guided, not spoonfed</h3>
+      <p>Ask for a hint. CodeWhisper nudges your thinking with questions and patterns, the way a great interviewer would.</p>
+    </div>
+    <div class="step">
+      <p class="step-num">03</p>
+      <h3>Build real understanding</h3>
+      <p>Walk away knowing why the solution works, not just what it is. That's what gets you the job.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section id="features">
+  <p class="section-label">Features</p>
+  <h2 class="section-heading">Everything you need to interview with confidence.</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <h3>Socratic hints</h3>
+      <p>4 levels of hints that guide without giving it away. Each nudge asks a question, never reveals the answer.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Algorithm pattern library</h3>
+      <p>10 built-in patterns with templates — sliding window, two pointers, BFS/DFS, dynamic programming, and more.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Session history</h3>
+      <p>Review every problem you've worked through. Track your progress and revisit patterns you struggled with.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Always-on-top overlay</h3>
+      <p>Floats over your browser while you code. No alt-tabbing, no distractions — just guidance when you need it.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Runs locally</h3>
+      <p>Screen capture and OCR happen entirely on your device. Your code and keystrokes never leave your machine.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Mac &amp; Windows</h3>
+      <p>Native desktop app for both platforms. No browser extension, no web login — just install and practice.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PRICING -->
+<section id="pricing">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-heading">Simple pricing</h2>
+  <p class="section-sub">No tricks. No tiers. Just the tool you need.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <p class="plan-name">Free Trial</p>
+      <p class="plan-price">$0<span class="plan-period">/ 7 days</span></p>
+      <ul class="plan-features">
+        <li>7 days free</li>
+        <li>Unlimited sessions</li>
+        <li>Full hint ladder</li>
+        <li>No credit card required</li>
+      </ul>
+      <div class="btn-plan">Coming Soon</div>
+    </div>
+    <div class="pricing-card">
+      <p class="plan-name">Pro</p>
+      <p class="plan-price">$9<span class="plan-period">/ month</span></p>
+      <ul class="plan-features">
+        <li>Unlimited sessions</li>
+        <li>Full hint ladder</li>
+        <li>Session history</li>
+        <li>Pattern library</li>
+        <li>Priority support</li>
+      </ul>
+      <div class="btn-plan">Coming Soon</div>
+    </div>
+    <div class="pricing-card featured">
+      <span class="popular-badge">Most Popular</span>
+      <p class="plan-name">Lifetime</p>
+      <p class="plan-price">$79<span class="plan-period">one-time</span></p>
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>Lifetime updates</li>
+        <li>No recurring fee</li>
+        <li>Pay once, own it forever</li>
+      </ul>
+      <div class="btn-plan">Coming Soon</div>
+    </div>
+  </div>
+  <p class="pricing-note">All plans include the full CodeWhisper desktop app. Pricing in USD.</p>
+</section>
+
+<hr class="divider" />
+
+<!-- FAQ -->
+<section id="faq" style="text-align: center;">
+  <p class="section-label">FAQ</p>
+  <h2 class="section-heading">Common questions</h2>
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary>Does it work during real interviews?</summary>
+      <p>CodeWhisper is a practice tool — use it to build skills before your interviews, not during them. It's designed to make you better, not dependent.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is my screen recorded or sent anywhere?</summary>
+      <p>No. Screen capture and OCR happen entirely on your device. Nothing is sent to our servers except your coaching messages.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What interview formats does it support?</summary>
+      <p>Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What if I cancel Pro?</summary>
+      <p>You keep access until the end of your billing period. No questions asked.</p>
+    </details>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 CodeWhisper. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="mailto:hello@codewhisper-ai.com">hello@codewhisper-ai.com</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+  </div>
+</footer>
+
+</body>
+</html>

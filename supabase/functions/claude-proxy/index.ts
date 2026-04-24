@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 const ANTHROPIC_VERSION = "2023-06-01";
-const FREE_SESSION_LIMIT = 3;
+const TRIAL_DAYS = 7;
 
 const SYSTEM_PROMPT = `You are an expert coding interview coach named CodeWhisper. Your job is NOT to solve problems for the user — it is to guide them to solve it themselves using the Socratic method. Always respond with questions, nudges, and progressive hints. Never write complete solutions. Identify the algorithm pattern the problem belongs to and help the user recognize it themselves. Keep responses concise — 2 to 4 sentences max. If the user is stuck, increase the hint level but never give the full answer.`;
 
@@ -146,23 +146,15 @@ Be educational and warm — they tried hard.`
     const isSessionStart = !messages || messages.length === 0;
 
     if (!isPro && isSessionStart) {
-      const { count } = await supabase
-        .from("usage_log")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      const trialEnd = new Date(new Date(user.created_at).getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      const trialExpired = new Date() > trialEnd;
 
-      if ((count ?? 0) >= FREE_SESSION_LIMIT) {
+      if (trialExpired) {
         return new Response(
-          JSON.stringify({ error: "free_limit_reached", message: "Upgrade to Pro for unlimited sessions" }),
+          JSON.stringify({ error: "free_limit_reached", message: "Your 7-day trial has ended. Upgrade to Pro for unlimited sessions." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-
-      await supabase.from("usage_log").insert({
-        user_id: user.id,
-        hint_level,
-        is_pro: isPro,
-      });
     }
 
     // Build the coaching-context message

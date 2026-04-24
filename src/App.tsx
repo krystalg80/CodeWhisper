@@ -24,7 +24,7 @@ function AppInner() {
 }
 
 export default function App() {
-  const { setIsPro, setFreeSessionsRemaining, user, setUser } = useAppStore();
+  const { setIsPro, setTrialDaysRemaining, user, setUser } = useAppStore();
   const { loadSessions } = useSessionStore();
 
   useEffect(() => {
@@ -58,11 +58,15 @@ export default function App() {
 
     refreshLicense();
 
+    // Compute trial days remaining from signup date
+    if (user.created_at) {
+      const trialEnd = new Date(new Date(user.created_at).getTime() + 7 * 24 * 60 * 60 * 1000);
+      const msLeft = trialEnd.getTime() - Date.now();
+      setTrialDaysRemaining(Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))));
+    }
+
     getSessionCount()
-      .then(({ is_pro, free_remaining }) => {
-        if (is_pro) setIsPro(true);
-        setFreeSessionsRemaining(free_remaining);
-      })
+      .then(({ is_pro }) => { if (is_pro) setIsPro(true); })
       .catch(() => {});
     loadSessions();
 

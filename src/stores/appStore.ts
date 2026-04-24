@@ -34,9 +34,9 @@ interface AppStore {
 
   // Freemium
   isPro: boolean;
-  freeSessionsRemaining: number;
+  trialDaysRemaining: number;
   setIsPro: (v: boolean) => void;
-  setFreeSessionsRemaining: (n: number) => void;
+  setTrialDaysRemaining: (n: number) => void;
 
   // Screen capture
   isCapturing: boolean;
@@ -94,9 +94,9 @@ export const useAppStore = create<AppStore>()(
         set((state) => ({ settings: { ...state.settings, ...s } })),
 
       isPro: false,
-      freeSessionsRemaining: 3,
+      trialDaysRemaining: 7,
       setIsPro: (v) => set({ isPro: v }),
-      setFreeSessionsRemaining: (n) => set({ freeSessionsRemaining: n }),
+      setTrialDaysRemaining: (n) => set({ trialDaysRemaining: n }),
 
       isCapturing: false,
       lastScreenshot: null,
