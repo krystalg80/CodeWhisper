@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "CodeWhisper",
+  "productName": "Lens",
   "version": "0.1.0",
   "identifier": "com.codewhisper.app",
   "build": {
@@ -14,7 +14,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "CodeWhisper",
+        "title": "Lens",
         "width": 420,
         "height": 680,
         "minWidth": 320,
@@ -36,7 +36,7 @@
       "iconPath": "icons/tray-icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
-      "title": "CodeWhisper"
+      "title": ""
     },
     "security": {
       "csp": null
