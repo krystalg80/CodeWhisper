@@ -95,7 +95,7 @@ export default function App() {
   if (!user) {
     return (
       <div className="h-full w-full flex items-start justify-start">
-        <div className="flex flex-col w-full h-full glass glass-border rounded-2xl shadow-overlay overflow-hidden animate-fade-in">
+        <div className="flex flex-col w-full h-full glass rounded-2xl shadow-overlay overflow-hidden animate-fade-in">
           <div data-tauri-drag-region className="flex-shrink-0">
             <TitleBar />
           </div>

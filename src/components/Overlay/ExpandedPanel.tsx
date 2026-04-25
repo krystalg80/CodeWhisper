@@ -25,7 +25,7 @@ export function ExpandedPanel() {
 
   return (
     <div
-      className="flex flex-col w-full h-full glass glass-border rounded-2xl
+      className="flex flex-col w-full h-full glass rounded-2xl
                  shadow-overlay animate-fade-in overflow-hidden"
       style={{ opacity: settings.overlayOpacity / 100 }}
     >

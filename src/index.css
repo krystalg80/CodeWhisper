@@ -41,7 +41,7 @@
   --bg-raised:     #faf8f5;
   --bg-overlay:    #e8e2da;
   --bg-muted:      #e0d9d0;
-  --border:        rgba(140, 125, 108, 0.5);
+  --border:        rgba(140, 125, 108, 0.2);
 
   --text-primary:   #18140f;
   --text-secondary: #4a3f33;
@@ -65,7 +65,7 @@
   --hint-3: #b45309;
   --hint-4: #b91c1c;
 
-  --shadow-overlay: 0 8px 32px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12);
+  --shadow-overlay: 0 8px 32px rgba(0,0,0,0.08);
 }
 
 @layer base {
