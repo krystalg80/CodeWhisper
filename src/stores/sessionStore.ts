@@ -84,6 +84,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     });
 
     set({ currentSession: null, messages: [], hintLevel: 1, analysis: null, autoCoachCount: 0, solutionRevealed: false });
+    useAppStore.setState({ isInterviewMode: false });
     get().loadSessions();
   },
 
@@ -211,13 +212,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   sendAutoCoach: async (screenText: string) => {
     const { currentSession, hintLevel, problemText, isSendingMessage, autoCoachCount } = get();
     if (isSendingMessage) return;
-
-    if (!currentSession) {
-      await get().startNewSession("Interview Session");
-      // Analyze problem text to capture patterns for the session
-      if (get().problemText) get().analyzeProblem();
-    }
-    const session = get().currentSession!;
+    if (!currentSession) return;
+    const session = currentSession;
 
     set({ isSendingMessage: true });
     try {

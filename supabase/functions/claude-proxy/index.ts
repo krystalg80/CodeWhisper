@@ -124,7 +124,7 @@ Required JSON shape:
     // ── Interview mode action (no usage counted — session already open) ───────
     if (action === "interview") {
       const attemptCount = Number(attempt_count ?? 0);
-      const gaveUp = attemptCount >= 15;
+      const gaveUp = attemptCount >= 20;
 
       const interviewPrompt = gaveUp
         ? `You are CodeWhisper. The user has been stuck on this problem for a long time and needs the full solution. Provide:

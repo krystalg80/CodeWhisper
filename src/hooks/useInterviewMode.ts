@@ -23,6 +23,11 @@ export function useInterviewMode() {
       return;
     }
 
+    // When the effect re-runs because solutionRevealed just became true, the first
+    // tick must re-baseline (not coach) — otherwise the newly rendered solution text
+    // on screen causes a large charDelta and triggers a spurious nudge.
+    let needsRebaseline = solutionRevealed;
+
     const tick = async () => {
       if (isRunningRef.current) return;
       isRunningRef.current = true;
@@ -30,6 +35,13 @@ export function useInterviewMode() {
         const screenshot = await captureScreen();
         const ocr = await extractTextFromScreenshot(screenshot.base64_png);
         const newText = ocr.text.trim();
+
+        if (needsRebaseline) {
+          needsRebaseline = false;
+          lastTextRef.current = newText;
+          lastCoachTimeRef.current = Date.now();
+          return;
+        }
 
         const charDelta = Math.abs(newText.length - lastTextRef.current.length);
         const msSinceCoach = Date.now() - lastCoachTimeRef.current;

@@ -28,12 +28,31 @@ pub fn run() {
             app.manage(state);
 
             // Exclude window from screen capture on macOS (invisible in Zoom, OBS, screenshots)
+            // Also explicitly set the dock icon so dev mode uses the correct icon file.
             #[cfg(target_os = "macos")]
-            if let Some(win) = app.get_webview_window("main") {
-                use objc::{msg_send, sel, sel_impl};
-                let ns_win = win.ns_window().expect("failed to get NSWindow");
+            {
+                use objc::{msg_send, sel, sel_impl, class};
+
+                if let Some(win) = app.get_webview_window("main") {
+                    let ns_win = win.ns_window().expect("failed to get NSWindow");
+                    unsafe {
+                        let _: () = msg_send![ns_win as *mut objc::runtime::Object, setSharingType: 0u64];
+                    }
+                }
+
+                // Set dock icon explicitly from embedded bytes so it matches the bundled icon
+                // in both dev and release modes.
+                let icon_bytes = include_bytes!("../icons/icon.icns");
                 unsafe {
-                    let _: () = msg_send![ns_win as *mut objc::runtime::Object, setSharingType: 0u64];
+                    let data: *mut objc::runtime::Object = msg_send![
+                        class!(NSData),
+                        dataWithBytes: icon_bytes.as_ptr()
+                        length: icon_bytes.len()
+                    ];
+                    let image: *mut objc::runtime::Object = msg_send![class!(NSImage), alloc];
+                    let image: *mut objc::runtime::Object = msg_send![image, initWithData: data];
+                    let ns_app: *mut objc::runtime::Object = msg_send![class!(NSApplication), sharedApplication];
+                    let _: () = msg_send![ns_app, setApplicationIconImage: image];
                 }
             }
 
