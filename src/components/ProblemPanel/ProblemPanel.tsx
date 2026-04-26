@@ -3,6 +3,7 @@ import { Camera, Sparkles, Loader2, X } from "lucide-react";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useAppStore } from "@/stores/appStore";
 import { captureScreen, extractTextFromScreenshot } from "@/lib/tauri";
+import { supabase } from "@/lib/supabase";
 
 export function ProblemPanel() {
   const { problemText, setProblemText, analyzeProblem, analysis, isAnalyzing, currentSession, startNewSession } =
@@ -27,10 +28,30 @@ export function ProblemPanel() {
       const screenshot = await captureScreen();
       setLastScreenshot(screenshot.base64_png);
       const ocrResult = await extractTextFromScreenshot(screenshot.base64_png);
-      if (ocrResult.text.trim()) {
+      if (!ocrResult.text.trim()) {
+        setOcrError("No text detected. Try manually pasting the problem.");
+        return;
+      }
+
+      // Clean the raw OCR noise via Claude before displaying
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+      try {
+        const { data: sessionData } = await supabase!.auth.getSession();
+        const token = sessionData.session?.access_token ?? anonKey;
+        const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "apikey": anonKey,
+          },
+          body: JSON.stringify({ action: "extract", screen_text: ocrResult.text }),
+        });
+        const data = await resp.json();
+        setProblemText(data.text?.trim() || ocrResult.text);
+      } catch {
         setProblemText(ocrResult.text);
-      } else {
-        setOcrError("No text detected in screenshot. Try manually pasting the problem.");
       }
     } catch (err) {
       setOcrError(err instanceof Error ? err.message : String(err));
@@ -63,7 +84,7 @@ export function ProblemPanel() {
           ) : (
             <Camera size={12} />
           )}
-          {ocrLoading ? "Capturing..." : "Screen OCR"}
+          {ocrLoading ? "Cleaning up..." : "Screen OCR"}
         </button>
 
         <button

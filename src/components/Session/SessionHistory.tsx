@@ -1,15 +1,22 @@
 import { useSessionStore } from "@/stores/sessionStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Clock, Trash2, ChevronRight, Loader2 } from "lucide-react";
 import type { Session } from "@/types";
 
 export function SessionHistory() {
   const { sessions, loadSessions, loadSession, deleteSession, isLoadingSessions } =
     useSessionStore();
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   useEffect(() => {
     loadSessions();
   }, []);
+
+  const handleClearAll = async () => {
+    if (!confirmClearAll) { setConfirmClearAll(true); return; }
+    await Promise.all(sessions.map((s) => deleteSession(s.id)));
+    setConfirmClearAll(false);
+  };
 
   const formatDuration = (seconds?: number) => {
     if (!seconds) return "—";
@@ -57,10 +64,18 @@ export function SessionHistory() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-3 py-2 border-b border-surface-border/60">
+      <div className="px-3 py-2 border-b border-surface-border/60 flex items-center justify-between">
         <p className="text-xs text-tx-tertiary">
           {sessions.length} session{sessions.length !== 1 ? "s" : ""}
         </p>
+        <button
+          onClick={handleClearAll}
+          onBlur={() => setConfirmClearAll(false)}
+          className="text-[10px] font-medium transition-colors"
+          style={{ color: confirmClearAll ? "var(--accent-red)" : "var(--text-tertiary)" }}
+        >
+          {confirmClearAll ? "Tap again to confirm" : "Clear all"}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1.5">

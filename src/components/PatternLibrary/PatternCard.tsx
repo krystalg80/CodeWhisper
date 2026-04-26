@@ -26,10 +26,10 @@ export function PatternCard({ pattern, onClick }: Props) {
             {pattern.description}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-green-400/60">
+            <span className="text-[10px] text-green-600">
               T: {pattern.time_complexity}
             </span>
-            <span className="text-[10px] text-blue-400/60">
+            <span className="text-[10px] text-blue-600">
               S: {pattern.space_complexity}
             </span>
           </div>

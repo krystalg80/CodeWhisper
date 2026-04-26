@@ -46,6 +46,38 @@ serve(async (req) => {
     // Parse request body
     const { action, messages, user_message, problem_text, current_code, screen_text, hint_level, attempt_count } = await req.json();
 
+    // ── Extract action — clean raw OCR text into just the problem statement ──
+    if (action === "extract") {
+      if (!screen_text?.trim()) throw new Error("screen_text is required for extract");
+
+      const extractPrompt = `The following is raw OCR text captured from a developer's screen. It contains a mix of browser UI, menus, notifications, and a coding problem statement.
+
+Extract ONLY the coding problem statement — the title, description, examples, and constraints. Remove all browser chrome, menu items, notifications, and unrelated text. Return only the clean problem text, nothing else.
+
+RAW OCR TEXT:
+${screen_text}`;
+
+      const claudeResp = await fetch(CLAUDE_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
+          "anthropic-version": ANTHROPIC_VERSION,
+        },
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 1024,
+          system: "You extract coding problem statements from noisy OCR text. Return only the clean problem text with no commentary.",
+          messages: [{ role: "user", content: extractPrompt }],
+        }),
+      });
+
+      if (!claudeResp.ok) throw new Error(`Claude API error: ${await claudeResp.text()}`);
+      const claudeData = await claudeResp.json();
+      const text = claudeData.content?.find((b: { type: string }) => b.type === "text")?.text ?? "";
+      return new Response(JSON.stringify({ text }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // ── Analyze action (no usage counted) ────────────────────────────────────
     if (action === "analyze") {
       if (!problem_text?.trim()) throw new Error("problem_text is required for analyze");

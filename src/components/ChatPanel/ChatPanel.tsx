@@ -131,21 +131,15 @@ export function ChatPanel() {
             Level {hintLevel} · {HINT_LEVEL_LABELS[hintLevel as HintLevel]}
           </span>
           <button
-            onClick={async () => { await requestHint(); }}
+            onClick={async () => {
+              if (hintLevel < 4) upgradeHintLevel();
+              await requestHint();
+            }}
             disabled={isSendingMessage}
-            className="text-xs text-tx-secondary hover:text-tx-primary transition-colors disabled:opacity-40 whitespace-nowrap"
+            className="text-xs text-ca-blue/80 hover:text-ca-blue font-medium transition-colors disabled:opacity-40 whitespace-nowrap"
           >
-            Get hint
+            {hintLevel < 4 ? `Get hint →` : "Ask again"}
           </button>
-          {hintLevel < 4 && (
-            <button
-              onClick={() => { upgradeHintLevel(); requestHint(); }}
-              disabled={isSendingMessage}
-              className="text-xs text-ca-blue/70 hover:text-ca-blue transition-colors disabled:opacity-40 whitespace-nowrap"
-            >
-              Unlock level {hintLevel + 1}
-            </button>
-          )}
           <button
             onClick={() => setActiveTab("hints")}
             className="ml-auto flex items-center gap-0.5 text-[10px] text-tx-tertiary hover:text-tx-secondary transition-colors whitespace-nowrap"

@@ -214,6 +214,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
     if (!currentSession) {
       await get().startNewSession("Interview Session");
+      // Analyze problem text to capture patterns for the session
+      if (get().problemText) get().analyzeProblem();
     }
     const session = get().currentSession!;
 
