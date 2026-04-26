@@ -46,7 +46,7 @@ export default function Terms() {
           },
           {
             title: "Acceptable use",
-            body: "You agree to use CodeWhisper only for lawful purposes. You may not use the app to cheat in actual interviews or assessments. CodeWhisper is designed for practice only.",
+            body: "You agree to use CodeWhisper only for lawful purposes. CodeWhisper is designed as a thinking aid — it guides your reasoning through Socratic hints and never provides direct answers. You may use it during technical interviews as a cognitive aid, similar to using documentation or notes, provided your interview format permits such tools. You are solely responsible for ensuring your use complies with the rules of any interview, assessment, or hiring process you participate in.",
           },
           {
             title: "Disclaimer",

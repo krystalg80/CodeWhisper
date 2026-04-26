@@ -27,6 +27,16 @@ pub fn run() {
 
             app.manage(state);
 
+            // Exclude window from screen capture on macOS (invisible in Zoom, OBS, screenshots)
+            #[cfg(target_os = "macos")]
+            if let Some(win) = app.get_webview_window("main") {
+                use objc::{msg_send, sel, sel_impl};
+                let ns_win = win.ns_window().expect("failed to get NSWindow");
+                unsafe {
+                    let _: () = msg_send![ns_win as *mut objc::runtime::Object, setSharingType: 0u64];
+                }
+            }
+
             // Tray icon click → toggle window visibility
             if let Some(tray) = app.tray_by_id("main") {
                 let handle = app.handle().clone();

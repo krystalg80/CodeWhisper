@@ -45,10 +45,10 @@ export default function Home() {
           Never gives the answer. Always nudges your thinking. Practice LeetCode with Socratic hints that float invisibly over your screen.
         </p>
         <button style={{ background: colors.purple, color: "#fff", border: "none", borderRadius: 12, padding: "14px 28px", fontSize: 15, fontWeight: 500, opacity: 0.85, cursor: "default" }}>
-          Coming Soon for Mac &amp; Windows
+          Coming Soon for Mac
         </button>
         <p style={{ marginTop: 14, fontSize: 13, color: colors.grayLight }}>
-          Free 7-day trial · No credit card required
+          Free 7-day trial · No credit card required · Windows coming soon
         </p>
       </div>
 
@@ -85,8 +85,9 @@ export default function Home() {
             { title: "Algorithm pattern library", body: "10 built-in patterns with templates — sliding window, two pointers, BFS/DFS, dynamic programming, and more." },
             { title: "Session history", body: "Review every problem you've worked through. Track your progress and revisit patterns you struggled with." },
             { title: "Always-on-top overlay", body: "Floats over your browser while you code. No alt-tabbing, no distractions — just guidance when you need it." },
+            { title: "Invisible during screen share", body: "CodeWhisper is excluded from screen capture — it won't appear in Zoom, OBS, or any recording tool on macOS." },
             { title: "Runs locally", body: "Screen capture and OCR happen entirely on your device. Your code and keystrokes never leave your machine." },
-            { title: "Mac & Windows", body: "Native desktop app for both platforms. No browser extension, no web login — just install and practice." },
+            { title: "macOS now · Windows soon", body: "Native macOS desktop app available now. Windows support is in development and coming soon." },
           ].map((f) => (
             <div key={f.title} style={{ background: colors.cream, border: `1px solid ${colors.purpleBorder}`, borderRadius: 16, padding: 28 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>{f.title}</h3>
@@ -132,7 +133,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <p style={{ fontSize: 13, color: colors.grayLight, textAlign: "center" }}>All plans include the full CodeWhisper desktop app. Pricing in USD.</p>
+        <p style={{ fontSize: 13, color: colors.grayLight, textAlign: "center" }}>All plans include the full CodeWhisper desktop app for macOS. Windows coming soon. Pricing in USD.</p>
       </section>
 
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />

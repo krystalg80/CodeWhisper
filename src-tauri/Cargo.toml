@@ -31,6 +31,9 @@ image = "0.25"
 # Screen capture (macOS/Windows/Linux)
 screenshots = "0.8"
 
+[target.'cfg(target_os = "macos")'.dependencies]
+objc = "0.2"
+
 # OCR via tesseract
 rusty-tesseract = "1.1"
 
