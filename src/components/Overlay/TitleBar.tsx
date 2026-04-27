@@ -8,9 +8,22 @@ import { useState } from "react";
 
 export function TitleBar() {
   const { toggleExpanded, theme, toggleTheme, isInterviewMode, toggleInterviewMode } = useAppStore();
-  const { currentSession } = useSessionStore();
+  const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  const handleInterviewMode = async () => {
+    if (!isInterviewMode) {
+      // Auto-start a session so the polling has somewhere to save messages
+      if (!currentSession) {
+        await startNewSession("Interview Session");
+        if (problemText.trim()) analyzeProblem();
+      }
+      toggleInterviewMode();
+    } else {
+      toggleInterviewMode();
+    }
+  };
 
   const handleClose = async () => {
     await getCurrentWindow().hide();
@@ -52,7 +65,7 @@ export function TitleBar() {
         <div className="flex items-center gap-0.5 no-drag">
           {/* Interview mode toggle */}
           <button
-            onClick={toggleInterviewMode}
+            onClick={handleInterviewMode}
             title={isInterviewMode ? "Exit interview mode" : "Interview mode — auto-coaches from your screen"}
             className={`no-drag flex items-center gap-1 px-2 h-6 rounded-md text-[10px] font-medium
                         transition-all duration-200

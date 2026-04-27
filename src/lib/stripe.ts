@@ -43,8 +43,9 @@ export async function createCheckoutSession(planId: PlanId): Promise<string> {
   const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
   if (sessionError || !session) throw new Error("Session expired — please sign out and sign in again");
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-  const res = await fetch(`/functions/v1/create-checkout`, {
+  const res = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

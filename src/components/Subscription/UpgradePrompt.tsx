@@ -2,17 +2,37 @@ import { useState } from "react";
 import { Zap, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { STRIPE_PLANS, createCheckoutSession, type PlanId } from "@/lib/stripe";
 import { open } from "@tauri-apps/plugin-shell";
+import { checkUserLicense } from "@/lib/supabase";
+import { useAppStore } from "@/stores/appStore";
 
 export function UpgradePrompt() {
   const [loading, setPlanLoading] = useState<PlanId | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [awaitingPayment, setAwaitingPayment] = useState(false);
+  const { user, setIsPro } = useAppStore();
 
   const handleUpgrade = async (planId: PlanId) => {
     setError(null);
     setPlanLoading(planId);
     try {
       const url = await createCheckoutSession(planId);
-      await open(url); // Open Stripe checkout in system browser
+      await open(url);
+      // Poll for license every 3s for up to 5 minutes after browser opens
+      setAwaitingPayment(true);
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        if (!user) { clearInterval(poll); return; }
+        const isPro = await checkUserLicense(user.id);
+        if (isPro) {
+          setIsPro(true);
+          clearInterval(poll);
+          setAwaitingPayment(false);
+        } else if (attempts >= 100) {
+          clearInterval(poll);
+          setAwaitingPayment(false);
+        }
+      }, 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upgrade failed";
       console.error("[Stripe]", msg);
@@ -78,6 +98,13 @@ export function UpgradePrompt() {
       {error && (
         <div className="w-full px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30">
           <p className="text-[10px] text-red-400 break-words">{error}</p>
+        </div>
+      )}
+
+      {awaitingPayment && (
+        <div className="flex items-center gap-2 text-[11px] text-ca-purple">
+          <Loader2 size={11} className="animate-spin" />
+          Waiting for payment confirmation...
         </div>
       )}
 

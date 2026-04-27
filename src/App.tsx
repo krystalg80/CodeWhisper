@@ -70,26 +70,7 @@ export default function App() {
       .catch(() => {});
     loadSessions();
 
-    // Poll for checkout success from the system browser redirect.
-    // When detected, retry license check several times to allow the webhook to land.
-    const poll = setInterval(async () => {
-      try {
-        const res = await fetch("/checkout/poll");
-        const { success } = await res.json();
-        if (!success) return;
-        clearInterval(poll);
-        // Retry up to 10 times (20s) waiting for the Stripe webhook to create the license
-        let attempts = 0;
-        const retry = setInterval(async () => {
-          attempts++;
-          const isPro = await checkUserLicense(user.id);
-          if (isPro) { setIsPro(true); clearInterval(retry); }
-          else if (attempts >= 10) clearInterval(retry);
-        }, 2000);
-      } catch {}
-    }, 2000);
-
-    return () => clearInterval(poll);
+    return () => {};
   }, [user]);
 
   if (!user) {

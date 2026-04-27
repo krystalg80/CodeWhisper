@@ -59,14 +59,13 @@ serve(async (req) => {
     }
 
     // Create checkout session
-    const appUrl = Deno.env.get("APP_REDIRECT_URL") ?? "http://localhost:1420";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       mode: plan_id === "pro_lifetime" ? "payment" : "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}?checkout=cancelled`,
+      success_url: `https://codewhisper-ai.com/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://codewhisper-ai.com/?checkout=cancelled`,
       metadata: { supabase_uid: user.id, plan_id },
     });
 
