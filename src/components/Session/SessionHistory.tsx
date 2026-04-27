@@ -1,6 +1,6 @@
 import { useSessionStore } from "@/stores/sessionStore";
 import { useEffect, useState } from "react";
-import { Clock, Trash2, ChevronRight, Loader2 } from "lucide-react";
+import { Clock, Trash2, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
 import type { Session } from "@/types";
 
 export function SessionHistory() {
@@ -93,9 +93,14 @@ export function SessionHistory() {
                   onClick={() => loadSession(session.id)}
                   className="flex-1 text-left"
                 >
-                  <p className="text-xs font-medium text-tx-primary truncate">
-                    {session.title}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    {session.is_solved === 1 && (
+                      <CheckCircle2 size={12} className="text-green-500 shrink-0" />
+                    )}
+                    <p className="text-xs font-medium text-tx-primary truncate">
+                      {session.title}
+                    </p>
+                  </div>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-[10px] text-tx-tertiary">
                       {formatDate(session.started_at)}
@@ -103,9 +108,13 @@ export function SessionHistory() {
                     <span className="text-[10px] text-tx-tertiary">
                       {formatDuration(session.duration_seconds ?? undefined)}
                     </span>
-                    <span className="text-[10px] text-tx-tertiary">
-                      Hint L{session.hint_level_reached}
-                    </span>
+                    {session.is_solved === 1 ? (
+                      <span className="text-[10px] text-green-500 font-medium">Problem Solved</span>
+                    ) : (
+                      <span className="text-[10px] text-tx-tertiary">
+                        Hint L{session.hint_level_reached}
+                      </span>
+                    )}
                   </div>
 
                   {patterns.length > 0 && (

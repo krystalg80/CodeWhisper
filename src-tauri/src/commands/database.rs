@@ -18,6 +18,7 @@ pub struct Session {
     pub duration_seconds: Option<i64>,
     pub notes: Option<String>,
     pub is_completed: i64,
+    pub is_solved: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
@@ -48,6 +49,7 @@ pub struct UpdateSessionInput {
     pub duration_seconds: Option<i64>,
     pub notes: Option<String>,
     pub is_completed: Option<bool>,
+    pub is_solved: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -121,7 +123,8 @@ pub async fn update_session(
             ended_at = COALESCE(?, ended_at),
             duration_seconds = COALESCE(?, duration_seconds),
             notes = COALESCE(?, notes),
-            is_completed = COALESCE(?, is_completed)
+            is_completed = COALESCE(?, is_completed),
+            is_solved = COALESCE(?, is_solved)
          WHERE id = ?",
     )
     .bind(&input.title)
@@ -132,6 +135,7 @@ pub async fn update_session(
     .bind(&input.duration_seconds)
     .bind(&input.notes)
     .bind(input.is_completed.map(|v| v as i64))
+    .bind(input.is_solved.map(|v| v as i64))
     .bind(&input.id)
     .execute(&state.db)
     .await

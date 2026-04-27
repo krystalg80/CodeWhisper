@@ -6,11 +6,12 @@ import { captureScreen, extractTextFromScreenshot } from "@/lib/tauri";
 
 const POLL_INTERVAL_MS = 12_000;
 const CHANGE_THRESHOLD_CHARS = 15;
-const MAX_SILENCE_MS = 45_000; // send even if no change after this long
+const MAX_SILENCE_MS = 45_000;       // nudge if no change after this long
+const AUTO_END_AFTER_REVEAL_MS = 3 * 60_000; // auto-end 3 min after reveal with no activity
 
 export function useInterviewMode() {
   const { isInterviewMode } = useAppStore();
-  const { sendAutoCoach, solutionRevealed } = useSessionStore();
+  const { sendAutoCoach, solutionRevealed, endCurrentSession } = useSessionStore();
 
   const lastTextRef = useRef("");
   const lastCoachTimeRef = useRef(0);
@@ -49,6 +50,12 @@ export function useInterviewMode() {
         const shouldCoach =
           charDelta >= CHANGE_THRESHOLD_CHARS ||
           (!solutionRevealed && lastCoachTimeRef.current > 0 && msSinceCoach >= MAX_SILENCE_MS);
+
+        // After solution revealed: auto-end if no activity for 3 minutes
+        if (solutionRevealed && charDelta < CHANGE_THRESHOLD_CHARS && msSinceCoach >= AUTO_END_AFTER_REVEAL_MS) {
+          await endCurrentSession();
+          return;
+        }
 
         if (shouldCoach) {
           lastTextRef.current = newText;

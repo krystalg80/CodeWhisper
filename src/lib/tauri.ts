@@ -86,6 +86,7 @@ export const updateSession = (input: {
   durationSeconds?: number;
   notes?: string;
   isCompleted?: boolean;
+  isSolved?: boolean;
 }) =>
   invoke<Session>("update_session", {
     input: {
@@ -98,6 +99,7 @@ export const updateSession = (input: {
       duration_seconds: input.durationSeconds,
       notes: input.notes,
       is_completed: input.isCompleted,
+      is_solved: input.isSolved,
     },
   });
 

@@ -70,7 +70,7 @@ export const useAppStore = create<AppStore>()(
       setActiveTab: (tab) => set({ activeTab: tab }),
       toggleExpanded: () => set((s) => ({ isExpanded: !s.isExpanded })),
 
-      theme: getSystemTheme(),
+      theme: "light",
       setTheme: (theme) => {
         document.documentElement.classList.toggle("light", theme === "light");
         set({ theme });

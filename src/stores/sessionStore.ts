@@ -34,6 +34,7 @@ interface SessionStore {
   loadSession: (id: string) => Promise<void>;
   deleteSession: (id: string) => Promise<void>;
   upgradeHintLevel: () => void;
+  markSolved: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionStore>((set, get) => ({
@@ -107,7 +108,21 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   requestHint: async () => {
-    const { currentSession, hintLevel } = get();
+    const { currentSession, hintLevel, messages, problemText } = get();
+
+    if (!problemText.trim()) {
+      const fakeMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        session_id: "",
+        role: "assistant",
+        content: "Paste a problem first — I need to see the question before I can coach you.",
+        created_at: new Date().toISOString(),
+      };
+      set({ messages: [...messages, fakeMsg] });
+      useAppStore.getState().setActiveTab("chat");
+      return;
+    }
+
     if (!currentSession) {
       await get().startNewSession();
     }
@@ -119,8 +134,22 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       4: "I need to see the structure — pseudocode please.",
     };
 
+    // If we've already given a hint at this level, ask Claude to go further
+    // rather than sending the identical message and getting the same answer
+    const alreadyHintedAtLevel = messages.some(
+      m => m.role === "assistant" && m.hint_level === hintLevel
+    );
+    const repeatLabels: Record<number, string> = {
+      1: "I still need a nudge — give me a different angle than before.",
+      2: "I know the pattern from your last hint but I'm still stuck — be more specific.",
+      3: "I still don't see the approach — explain it differently or go one step further.",
+      4: "I still can't figure it out from that pseudocode — fill in more of the blanks for me.",
+    };
+
     await get().sendMessage(
-      levelLabels[hintLevel] || "Can you give me a hint?"
+      alreadyHintedAtLevel
+        ? (repeatLabels[hintLevel] || "Can you go further than your last hint?")
+        : (levelLabels[hintLevel] || "Can you give me a hint?")
     );
   },
 
@@ -226,7 +255,12 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
       const nextCount = autoCoachCount + 1;
-      set({ autoCoachCount: nextCount });
+      // Auto-escalate hint depth based on how many attempts have been made
+      const autoHintLevel: HintLevel =
+        nextCount <= 4 ? 1 :
+        nextCount <= 8 ? 2 :
+        nextCount <= 14 ? 3 : 4;
+      set({ autoCoachCount: nextCount, hintLevel: autoHintLevel });
 
       const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
         method: "POST",
@@ -239,8 +273,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
           action: "interview",
           problem_text: problemText,
           screen_text: screenText,
-          hint_level: hintLevel,
+          hint_level: autoHintLevel,
           attempt_count: nextCount,
+          prior_hints: get().messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
@@ -251,7 +286,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         sessionId: session.id,
         role: "assistant",
         content: data.message,
-        hintLevel,
+        hintLevel: autoHintLevel,
       });
 
       // After revealing the solution, reset counter so future polls go back to Socratic coaching
@@ -309,6 +344,14 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     }
   },
 
+  markSolved: async () => {
+    const { currentSession } = get();
+    if (!currentSession) return;
+    await tauriApi.updateSession({ id: currentSession.id, isSolved: true, isCompleted: true });
+    set({ currentSession: { ...currentSession, is_solved: 1, is_completed: 1 } });
+    get().loadSessions();
+  },
+
   loadSessions: async () => {
     set({ isLoadingSessions: true });
     try {
@@ -322,10 +365,18 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   loadSession: async (id: string) => {
     const session = await tauriApi.getSession(id);
     const messages = await tauriApi.getSessionMessages(id);
+    // Derive hint level from messages in case session was never formally ended
+    const maxFromMessages = messages
+      .filter(m => m.role === "assistant" && m.hint_level)
+      .reduce((max, m) => Math.max(max, m.hint_level ?? 1), 1);
+    const restoredLevel = Math.min(
+      Math.max(maxFromMessages, session.hint_level_reached || 1),
+      4
+    ) as HintLevel;
     set({
       currentSession: session,
       messages,
-      hintLevel: (session.hint_level_reached || 1) as HintLevel,
+      hintLevel: restoredLevel,
       problemText: session.problem_text,
     });
     useAppStore.getState().setActiveTab("chat");

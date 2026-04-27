@@ -61,10 +61,17 @@ async fn run_migrations(pool: &SqlitePool) -> anyhow::Result<()> {
         r#"INSERT OR IGNORE INTO license (id, is_active, plan) VALUES (1, 1, 'free')"#,
         r#"CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id)"#,
         r#"CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at DESC)"#,
+        r#"ALTER TABLE sessions ADD COLUMN is_solved INTEGER NOT NULL DEFAULT 0"#,
     ];
 
     for stmt in &stmts {
-        sqlx::query(stmt).execute(pool).await?;
+        let result = sqlx::query(stmt).execute(pool).await;
+        // Ignore "duplicate column" errors from ALTER TABLE on re-runs
+        if let Err(e) = result {
+            if !e.to_string().contains("duplicate column") {
+                return Err(e.into());
+            }
+        }
     }
 
     Ok(())

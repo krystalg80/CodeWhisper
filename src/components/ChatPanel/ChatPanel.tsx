@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Plus, StopCircle, Loader2, Code2, ChevronDown, ChevronUp, Lightbulb, ChevronRight } from "lucide-react";
+import { Send, Plus, StopCircle, Loader2, Code2, ChevronDown, ChevronUp, Lightbulb, ChevronRight, CheckCircle2 } from "lucide-react";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useAppStore } from "@/stores/appStore";
 import { useSessionTimer } from "@/hooks/useSessionTimer";
@@ -10,7 +10,7 @@ import { EmptyChat } from "./EmptyChat";
 export function ChatPanel() {
   const {
     messages, sendMessage, isSendingMessage,
-    currentSession, startNewSession, endCurrentSession,
+    currentSession, startNewSession, endCurrentSession, markSolved,
     currentCode, setCurrentCode,
     hintLevel, requestHint, upgradeHintLevel,
   } = useSessionStore();
@@ -52,6 +52,22 @@ export function ChatPanel() {
               {currentSession.title}
             </span>
             <span className="text-xs text-tx-tertiary font-mono">{elapsed}</span>
+            {currentSession.is_solved ? (
+              <span className="flex items-center gap-1 text-xs text-green-500 font-medium">
+                <CheckCircle2 size={11} />
+                Solved
+              </span>
+            ) : (
+              <button
+                onClick={markSolved}
+                title="Mark this problem as solved"
+                className="flex items-center gap-1 text-xs text-green-500/60
+                           hover:text-green-500 transition-colors"
+              >
+                <CheckCircle2 size={11} />
+                Solved
+              </button>
+            )}
             <button
               onClick={endCurrentSession}
               className="flex items-center gap-1 text-xs text-ca-red/60

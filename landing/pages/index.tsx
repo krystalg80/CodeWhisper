@@ -81,12 +81,14 @@ export default function Home() {
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Everything you need to interview with confidence.</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
           {[
-            { title: "Socratic hints", body: "4 levels of hints that guide without giving it away. Each nudge asks a question, never reveals the answer." },
-            { title: "Algorithm pattern library", body: "10 built-in patterns with templates — sliding window, two pointers, BFS/DFS, dynamic programming, and more." },
-            { title: "Session history", body: "Review every problem you've worked through. Track your progress and revisit patterns you struggled with." },
+            { title: "4-level hint ladder", body: "Nudge → pattern → code skeleton → near-complete solution. Clicks the same level twice? Goes deeper, not in circles." },
+            { title: "Interview Mode (LIVE)", body: "Hands-free coaching during mock interviews. Watches your screen every 12 seconds, nudges when you're stuck, escalates automatically." },
+            { title: "Auto-escalating hints", body: "In LIVE mode, hints get more direct the longer you're stuck — from a Socratic question all the way to a working code skeleton." },
+            { title: "Problem Solved tracking", body: "Click ✓ Solved when LeetCode accepts your answer. Saved to history with a green check so you can track your wins." },
             { title: "Always-on-top overlay", body: "Floats over your browser while you code. No alt-tabbing, no distractions — just guidance when you need it." },
             { title: "Invisible during screen share", body: "CodeWhisper is excluded from screen capture — it won't appear in Zoom, OBS, or any recording tool on macOS." },
-            { title: "Runs locally", body: "Screen capture and OCR happen entirely on your device. Your code and keystrokes never leave your machine." },
+            { title: "Session history", body: "Every problem you've worked through is saved. Reload any session and pick up exactly where you left off, hint level and all." },
+            { title: "Algorithm pattern library", body: "10 built-in patterns with templates — sliding window, two pointers, BFS/DFS, dynamic programming, and more." },
             { title: "macOS now · Windows soon", body: "Native macOS desktop app available now. Windows support is in development and coming soon." },
           ].map((f) => (
             <div key={f.title} style={{ background: colors.cream, border: `1px solid ${colors.purpleBorder}`, borderRadius: 16, padding: 28 }}>
@@ -144,9 +146,10 @@ export default function Home() {
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Common questions</h2>
         <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "left" }}>
           {[
-            { q: "Does it work during real interviews?", a: "CodeWhisper is a practice tool — use it to build skills before your interviews, not during them. It's designed to make you better, not dependent." },
+            { q: "What is Interview Mode (LIVE)?", a: "LIVE mode watches your screen every 12 seconds and coaches you hands-free — no typing needed. Hints auto-escalate the longer you're stuck, from a gentle nudge to a code skeleton. After 20 coaching cycles it gives you the full solution. The session auto-ends after 3 minutes of inactivity." },
+            { q: "Does it work during real interviews?", a: "Interview Mode is designed as a thinking aid — it helps you understand the problem faster, not cheat. You're responsible for following your interviewer's rules. That said, CodeWhisper is invisible during screen share on macOS, so it won't appear in Zoom or any recording tool." },
             { q: "Is my screen recorded or sent anywhere?", a: "No. Screen capture and OCR happen entirely on your device. Nothing is sent to our servers except your coaching messages." },
-            { q: "What interview formats does it support?", a: "Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in." },
+            { q: "What interview formats does it support?", a: "Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in or use Screen OCR to capture it automatically." },
             { q: "What if I cancel Pro?", a: "You keep access until the end of your billing period. No questions asked." },
           ].map((item) => (
             <details key={item.q} style={{ borderBottom: `1px solid ${colors.purpleBorder}`, padding: "20px 0" }}>

@@ -12,6 +12,7 @@ export interface Session {
   duration_seconds?: number;
   notes?: string;
   is_completed: number; // SQLite 0/1
+  is_solved: number;    // SQLite 0/1 — user marked problem as solved
 }
 
 export interface ChatMessage {
