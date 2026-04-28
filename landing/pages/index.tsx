@@ -50,6 +50,9 @@ export default function Home() {
         <p style={{ marginTop: 14, fontSize: 13, color: colors.grayLight }}>
           Free 7-day trial · No credit card required · Windows coming soon
         </p>
+        <p style={{ marginTop: 8, fontSize: 12, color: colors.grayLight, opacity: 0.7 }}>
+          The app installs as <strong style={{ color: colors.gray }}>"Lens"</strong> — a neutral name that won't raise eyebrows on your screen.
+        </p>
       </div>
 
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
@@ -136,6 +139,7 @@ export default function Home() {
           ))}
         </div>
         <p style={{ fontSize: 13, color: colors.grayLight, textAlign: "center" }}>All plans include the full CodeWhisper desktop app for macOS. Windows coming soon. Pricing in USD.</p>
+        <p style={{ fontSize: 12, color: colors.grayLight, textAlign: "center", opacity: 0.7, marginTop: 6 }}>App installs as <strong style={{ color: colors.gray }}>"Lens"</strong> to keep a low profile.</p>
       </section>
 
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
