@@ -58,6 +58,10 @@ pub fn run() {
 
             // Tray icon click → toggle window visibility
             if let Some(tray) = app.tray_by_id("main") {
+                // Explicitly set template mode so macOS auto-tints for light/dark menu bars
+                #[cfg(target_os = "macos")]
+                let _ = tray.set_icon_as_template(true);
+
                 let handle = app.handle().clone();
                 tray.on_tray_icon_event(move |_tray, event| {
                     if let tauri::tray::TrayIconEvent::Click {
