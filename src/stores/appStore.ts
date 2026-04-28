@@ -57,9 +57,7 @@ interface AppStore {
   setUser: (u: User | null) => void;
 }
 
-// Detect system preference
-const getSystemTheme = (): Theme =>
-  window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+
 
 export const useAppStore = create<AppStore>()(
   persist(

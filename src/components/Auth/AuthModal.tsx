@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 import { signInWithEmail, signUpWithEmail, supabase } from "@/lib/supabase";
 import { open } from "@tauri-apps/plugin-shell";
+import { listen } from "@tauri-apps/api/event";
 
 interface Props {
   onSuccess: () => void;
@@ -15,65 +16,57 @@ export function AuthModal({ onSuccess }: Props) {
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmSent, setConfirmSent] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleOAuth = async (provider: "google" | "github") => {
     if (!supabase) return;
     setError(null);
     setOauthLoading(provider);
     try {
-      // Use skipBrowserRedirect so the WebView stores the PKCE verifier
-      // but we open the URL in the system browser (avoids passkey/WebAuthn issues).
       const { data, error: err } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           skipBrowserRedirect: true,
-          redirectTo: "http://localhost:1420/auth/callback",
+          redirectTo: "codewhisper://auth/callback",
         },
       });
       if (err) throw err;
       if (!data.url) throw new Error("No OAuth URL returned");
 
-      // Open in system browser — full passkey/WebAuthn support there
+      // Open in system browser
       await open(data.url);
 
-      // Poll the Vite broker for the auth code or tokens
-      pollRef.current = setInterval(async () => {
+      // Listen for the deep link callback (codewhisper://auth/callback?code=...)
+      const unlisten = await listen<string[]>("oauth-deep-link", async (event) => {
+        unlisten();
+        clearTimeout(timeoutId);
         try {
-          const res = await fetch("/auth/poll");
-          const payload = await res.json();
-          if (!payload.code && !payload.tokens) return;
-          clearInterval(pollRef.current!);
-          pollRef.current = null;
+          const url = event.payload[0];
+          const urlObj = new URL(url);
+          const code = urlObj.searchParams.get("code");
+          const hash = url.split("#")[1];
 
-          if (payload.code) {
-            // PKCE flow — exchange code using verifier stored in this WebView
-            const { error: exchangeErr } = await supabase!.auth.exchangeCodeForSession(payload.code);
+          if (code) {
+            const { error: exchangeErr } = await supabase!.auth.exchangeCodeForSession(code);
             if (exchangeErr) throw exchangeErr;
-          } else if (payload.tokens) {
-            // Implicit flow — set session directly
+          } else if (hash) {
+            const params = new URLSearchParams(hash);
             const { error: setErr } = await supabase!.auth.setSession({
-              access_token: payload.tokens.access_token,
-              refresh_token: payload.tokens.refresh_token,
+              access_token: params.get("access_token") ?? "",
+              refresh_token: params.get("refresh_token") ?? "",
             });
             if (setErr) throw setErr;
           }
           setOauthLoading(null);
         } catch (e) {
-          clearInterval(pollRef.current!);
-          pollRef.current = null;
           setError(e instanceof Error ? e.message : "Auth failed");
           setOauthLoading(null);
         }
-      }, 1000);
+      });
 
-      // Timeout after 5 minutes
-      setTimeout(() => {
-        if (pollRef.current) {
-          clearInterval(pollRef.current);
-          setOauthLoading(null);
-          setError("Sign in timed out. Please try again.");
-        }
+      const timeoutId = setTimeout(() => {
+        unlisten();
+        setOauthLoading(null);
+        setError("Sign in timed out. Please try again.");
       }, 5 * 60 * 1000);
 
     } catch (err: unknown) {

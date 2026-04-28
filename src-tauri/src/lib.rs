@@ -11,6 +11,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
             let app_dir = app
                 .path()
@@ -55,6 +56,17 @@ pub fn run() {
                     let _: () = msg_send![ns_app, setApplicationIconImage: image];
                 }
             }
+
+            // Deep link handler — OAuth callback comes in as codewhisper://auth/callback?code=...
+            let deep_link_handle = app.handle().clone();
+            app.deep_link().on_open_urls(move |event| {
+                let urls: Vec<String> = event.urls().iter().map(|u| u.to_string()).collect();
+                if let Some(win) = deep_link_handle.get_webview_window("main") {
+                    let _ = win.show();
+                    let _ = win.set_focus();
+                    let _ = win.emit("oauth-deep-link", urls);
+                }
+            });
 
             // Tray icon click → toggle window visibility
             if let Some(tray) = app.tray_by_id("main") {

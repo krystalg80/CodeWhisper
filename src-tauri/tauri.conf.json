@@ -65,5 +65,12 @@
       "providerShortName": null
     }
   },
-  "plugins": {}
+  "plugins": {
+    "deep-link": {
+      "mobile": [],
+      "desktop": {
+        "schemes": ["codewhisper"]
+      }
+    }
+  }
 }

@@ -116,7 +116,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         session_id: "",
         role: "assistant",
         content: "Paste a problem first — I need to see the question before I can coach you.",
-        created_at: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
       };
       set({ messages: [...messages, fakeMsg] });
       useAppStore.getState().setActiveTab("chat");
@@ -239,7 +239,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   sendAutoCoach: async (screenText: string) => {
-    const { currentSession, hintLevel, problemText, isSendingMessage, autoCoachCount } = get();
+    const { currentSession, problemText, isSendingMessage, autoCoachCount } = get();
     if (isSendingMessage) return;
     if (!currentSession) return;
     const session = currentSession;

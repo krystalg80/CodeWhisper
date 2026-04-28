@@ -64,6 +64,7 @@ serve(async (req) => {
       payment_method_types: ["card"],
       mode: plan_id === "pro_lifetime" ? "payment" : "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
       success_url: `https://codewhisper-ai.com/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://codewhisper-ai.com/?checkout=cancelled`,
       metadata: { supabase_uid: user.id, plan_id },

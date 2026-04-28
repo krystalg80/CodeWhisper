@@ -29,8 +29,8 @@ export function TitleBar() {
     await getCurrentWindow().hide();
   };
 
-  const handleCollapse = () => {
-    toggleExpanded(); // shrink to floating bubble
+  const handleMinimize = async () => {
+    await getCurrentWindow().minimize();
   };
 
   return (
@@ -81,7 +81,7 @@ export function TitleBar() {
           <IconButton onClick={() => setShowSettings(true)} title="Settings">
             <Settings size={13} />
           </IconButton>
-          <IconButton onClick={handleCollapse} title="Hide to tray">
+          <IconButton onClick={handleMinimize} title="Minimize">
             <Minus size={13} />
           </IconButton>
           <IconButton onClick={handleClose} title="Hide to tray" danger>
