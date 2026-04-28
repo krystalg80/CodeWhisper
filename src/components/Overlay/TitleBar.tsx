@@ -42,12 +42,6 @@ export function TitleBar() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2 no-drag">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L3 7V17L12 22L21 17V7L12 2Z"
-              stroke="var(--accent-purple)" strokeWidth="1.5" strokeLinejoin="round"/>
-            <path d="M8 11L10.5 13.5L16 8"
-              stroke="var(--accent-blue)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
           <span className="text-sm font-semibold text-gradient tracking-tight">
             CodeWhisper
           </span>
