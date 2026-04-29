@@ -7,7 +7,7 @@ import { OnboardingModal } from "@/components/Onboarding/OnboardingModal";
 import { useState } from "react";
 
 export function TitleBar() {
-  const { toggleExpanded, theme, toggleTheme, isInterviewMode, toggleInterviewMode } = useAppStore();
+  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode } = useAppStore();
   const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
