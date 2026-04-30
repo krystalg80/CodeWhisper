@@ -7,14 +7,13 @@ import { OnboardingModal } from "@/components/Onboarding/OnboardingModal";
 import { useState } from "react";
 
 export function TitleBar() {
-  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode, isPro, trialDaysRemaining } = useAppStore();
+  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode, isPro, trialDaysRemaining, toggleExpanded } = useAppStore();
   const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const handleInterviewMode = async () => {
     if (!isInterviewMode) {
-      // Auto-start a session so the polling has somewhere to save messages
       if (!currentSession) {
         await startNewSession("Interview Session");
         if (problemText.trim()) analyzeProblem();
@@ -27,10 +26,6 @@ export function TitleBar() {
 
   const handleClose = async () => {
     await getCurrentWindow().hide();
-  };
-
-  const handleMinimize = async () => {
-    await getCurrentWindow().minimize();
   };
 
   return (
@@ -93,7 +88,7 @@ export function TitleBar() {
           <IconButton onClick={() => setShowSettings(true)} title="Settings">
             <Settings size={13} />
           </IconButton>
-          <IconButton onClick={handleMinimize} title="Minimize">
+          <IconButton onClick={toggleExpanded} title="Collapse to bubble">
             <Minus size={13} />
           </IconButton>
           <IconButton onClick={handleClose} title="Hide to tray" danger>
