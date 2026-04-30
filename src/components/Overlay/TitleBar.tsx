@@ -7,7 +7,7 @@ import { OnboardingModal } from "@/components/Onboarding/OnboardingModal";
 import { useState } from "react";
 
 export function TitleBar() {
-  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode } = useAppStore();
+  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode, isPro, trialDaysRemaining } = useAppStore();
   const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -45,6 +45,18 @@ export function TitleBar() {
           <span className="text-sm font-semibold text-gradient tracking-tight">
             CodeWhisper
           </span>
+          {!isPro && trialDaysRemaining > 0 && (
+            <span
+              className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
+              style={{
+                background: trialDaysRemaining <= 2 ? "color-mix(in srgb, var(--accent-red) 15%, transparent)" : "color-mix(in srgb, var(--accent-purple) 15%, transparent)",
+                color: trialDaysRemaining <= 2 ? "var(--accent-red)" : "var(--accent-purple)",
+                border: `1px solid ${trialDaysRemaining <= 2 ? "color-mix(in srgb, var(--accent-red) 30%, transparent)" : "color-mix(in srgb, var(--accent-purple) 30%, transparent)"}`,
+              }}
+            >
+              {trialDaysRemaining}d trial
+            </span>
+          )}
           {currentSession && (
             <span className="text-xs truncate max-w-[90px]" style={{ color: "var(--text-tertiary)" }}>
               · {currentSession.title}
