@@ -5,7 +5,7 @@ mod state;
 use commands::{audio, claude, database, ocr, screen, session, whisper};
 use state::AppState;
 use tauri::{Emitter, Manager};
-use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_deep_link::{DeepLinkExt, OpenUrlEvent};
 
 pub fn run() {
     tauri::Builder::default()
@@ -60,8 +60,8 @@ pub fn run() {
 
             // Deep link handler — OAuth callback comes in as codewhisper://auth/callback?code=...
             let deep_link_handle = app.handle().clone();
-            app.deep_link().on_open_urls(move |event: tauri_plugin_deep_link::DeepLinkEvent| {
-                let urls: Vec<String> = event.urls().iter().map(|u: &url::Url| u.to_string()).collect();
+            app.deep_link().on_open_url(move |event: OpenUrlEvent| {
+                let urls: Vec<String> = event.urls().into_iter().map(|u| u.to_string()).collect();
                 if let Some(win) = deep_link_handle.get_webview_window("main") {
                     let _ = win.show();
                     let _ = win.set_focus();
