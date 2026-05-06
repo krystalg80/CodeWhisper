@@ -78,7 +78,7 @@ export default function App() {
       <div className="h-full w-full flex items-start justify-start">
         <div className="flex flex-col w-full h-full glass rounded-2xl shadow-overlay overflow-hidden animate-fade-in">
           <div data-tauri-drag-region className="flex-shrink-0">
-            <TitleBar />
+            <TitleBar hideControls />
           </div>
           <AuthModal onSuccess={() => {}} />
         </div>

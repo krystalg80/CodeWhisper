@@ -13,14 +13,14 @@ export default function Home() {
     <div style={{ fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif", background: colors.cream, color: colors.navy, lineHeight: 1.6 }}>
 
       {/* NAV */}
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 48px", height: 68, borderBottom: `1px solid ${colors.purpleBorder}`, background: colors.cream, position: "sticky", top: 0, zIndex: 100 }}>
+      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 68, borderBottom: `1px solid ${colors.purpleBorder}`, background: colors.cream, position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 18, letterSpacing: "-0.3px" }}>
             <span style={{ fontWeight: 300, color: colors.navy }}>Code</span>
             <span style={{ fontWeight: 600, color: colors.purple }}>Whisper</span>
           </span>
         </div>
-        <ul style={{ display: "flex", gap: 32, listStyle: "none", margin: 0, padding: 0 }}>
+        <ul className="hide-mobile" style={{ display: "flex", gap: 32, listStyle: "none", margin: 0, padding: 0 }}>
           {["Features", "Pricing", "Docs", "Blog"].map((link) => (
             <li key={link}>
               <a href={`#${link.toLowerCase()}`} style={{ textDecoration: "none", fontSize: 15, color: colors.gray }}>{link}</a>
@@ -31,6 +31,7 @@ export default function Home() {
           Coming Soon
         </button>
       </nav>
+      <style>{`@media (max-width: 600px) { .hide-mobile { display: none !important; } }`}</style>
 
       {/* HERO */}
       <div style={{ textAlign: "center", padding: "96px 24px 80px", maxWidth: 760, margin: "0 auto" }}>

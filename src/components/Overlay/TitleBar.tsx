@@ -6,7 +6,7 @@ import { SettingsModal } from "@/components/Auth/SettingsModal";
 import { OnboardingModal } from "@/components/Onboarding/OnboardingModal";
 import { useState } from "react";
 
-export function TitleBar() {
+export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
   const { theme, toggleTheme, isInterviewMode, toggleInterviewMode, isPro, trialDaysRemaining, toggleExpanded } = useAppStore();
   const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
@@ -63,7 +63,7 @@ export function TitleBar() {
         <div data-tauri-drag-region className="flex-1 h-full min-h-[36px]" />
 
         {/* Controls */}
-        <div className="flex items-center gap-0.5 no-drag">
+        <div className="flex items-center gap-0.5 no-drag" style={{ visibility: hideControls ? "hidden" : "visible" }}>
           {/* Interview mode toggle */}
           <button
             onClick={handleInterviewMode}
