@@ -10,7 +10,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif", background: colors.cream, color: colors.navy, lineHeight: 1.6 }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif", background: colors.cream, color: colors.navy, lineHeight: 1.6, overflowX: "hidden", maxWidth: "100vw" }}>
 
       {/* NAV */}
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 68, borderBottom: `1px solid ${colors.purpleBorder}`, background: colors.cream, position: "sticky", top: 0, zIndex: 100 }}>
@@ -59,7 +59,7 @@ export default function Home() {
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
 
       {/* HOW IT WORKS */}
-      <section style={{ padding: "80px 48px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>How It Works</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Three steps to better interviews</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
@@ -80,7 +80,7 @@ export default function Home() {
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
 
       {/* FEATURES */}
-      <section id="features" style={{ padding: "80px 48px", maxWidth: 1100, margin: "0 auto" }}>
+      <section id="features" style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Features</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Everything you need to interview with confidence.</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
@@ -106,7 +106,7 @@ export default function Home() {
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
 
       {/* PRICING */}
-      <section id="pricing" style={{ padding: "80px 48px", maxWidth: 1100, margin: "0 auto" }}>
+      <section id="pricing" style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Pricing</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 12 }}>Simple pricing</h2>
         <p style={{ fontSize: 16, color: colors.gray, marginBottom: 48 }}>No tricks. No tiers. Just the tool you need.</p>
@@ -146,7 +146,7 @@ export default function Home() {
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
 
       {/* FAQ */}
-      <section id="faq" style={{ padding: "80px 48px", maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+      <section id="faq" style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>FAQ</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Common questions</h2>
         <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "left" }}>
@@ -168,7 +168,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: colors.cream, borderTop: `1px solid ${colors.purpleBorder}`, padding: "32px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+      <footer style={{ background: colors.cream, borderTop: `1px solid ${colors.purpleBorder}`, padding: "32px clamp(16px, 5vw, 48px)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <p style={{ fontSize: 13, color: colors.gray }}>© 2026 CodeWhisper. All rights reserved.</p>
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
           <a href="mailto:hello@codewhisper-ai.com" style={{ color: colors.gray, textDecoration: "none", fontSize: 13 }}>hello@codewhisper-ai.com</a>
