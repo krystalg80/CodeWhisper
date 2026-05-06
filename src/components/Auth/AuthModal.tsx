@@ -12,6 +12,7 @@ export function AuthModal({ onSuccess }: Props) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export function AuthModal({ onSuccess }: Props) {
         if (err) throw err;
         onSuccess();
       } else {
-        const { error: err } = await signUpWithEmail(email, password);
+        const { error: err } = await signUpWithEmail(email, password, fullName);
         if (err) throw err;
         setConfirmSent(true);
       }
@@ -177,6 +178,20 @@ export function AuthModal({ onSuccess }: Props) {
             color: "var(--text-primary)",
           }}
         />
+        {mode === "signup" && (
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Full name"
+            className="w-full rounded-xl px-3 py-2 text-xs outline-none"
+            style={{
+              background: "var(--bg-muted)",
+              border: "1px solid var(--border)",
+              color: "var(--text-primary)",
+            }}
+          />
+        )}
         <input
           type="password"
           value={password}

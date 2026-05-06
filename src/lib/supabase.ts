@@ -18,9 +18,13 @@ export async function signInWithEmail(email: string, password: string) {
   return supabase.auth.signInWithPassword({ email, password });
 }
 
-export async function signUpWithEmail(email: string, password: string) {
+export async function signUpWithEmail(email: string, password: string, fullName?: string) {
   if (!supabase) throw new Error("Supabase not configured");
-  return supabase.auth.signUp({ email, password });
+  return supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: fullName ?? "" } },
+  });
 }
 
 export async function signOut() {
