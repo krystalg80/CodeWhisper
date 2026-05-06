@@ -23,7 +23,10 @@ export async function signUpWithEmail(email: string, password: string, fullName?
   return supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName ?? "" } },
+    options: {
+      data: { full_name: fullName ?? "" },
+      emailRedirectTo: "https://codewhisper-ai.com/auth/callback",
+    },
   });
 }
 
