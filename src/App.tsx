@@ -51,7 +51,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsPro(false);
+      return;
+    }
 
     const refreshLicense = () =>
       checkUserLicense(user.id).then((isPro) => { if (isPro) setIsPro(true); });

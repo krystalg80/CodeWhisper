@@ -63,34 +63,37 @@ export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
         <div data-tauri-drag-region className="flex-1 h-full min-h-[36px]" />
 
         {/* Controls */}
-        <div className="flex items-center gap-0.5 no-drag" style={{ visibility: hideControls ? "hidden" : "visible" }}>
-          {/* Interview mode toggle */}
-          <button
-            onClick={handleInterviewMode}
-            title={isInterviewMode ? "Exit interview mode" : "Interview mode — auto-coaches from your screen"}
-            className={`no-drag flex items-center gap-1 px-2 h-6 rounded-md text-[10px] font-medium
-                        transition-all duration-200
-                        ${isInterviewMode
-                          ? "bg-ca-red/15 text-ca-red border border-ca-red/30"
-                          : "text-tx-tertiary hover:text-tx-primary hover:bg-surface-overlay"
-                        }`}
-          >
-            <Radio size={11} className={isInterviewMode ? "animate-pulse" : ""} />
-            {isInterviewMode && <span>LIVE</span>}
-          </button>
-
-          <IconButton onClick={() => setShowOnboarding(true)} title="How to use">
-            <HelpCircle size={13} />
-          </IconButton>
-          <IconButton onClick={toggleTheme} title={theme === "dark" ? "Light mode" : "Dark mode"}>
-            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
-          </IconButton>
-          <IconButton onClick={() => setShowSettings(true)} title="Settings">
-            <Settings size={13} />
-          </IconButton>
-          <IconButton onClick={toggleExpanded} title="Collapse to bubble">
-            <Minus size={13} />
-          </IconButton>
+        <div className="flex items-center gap-0.5 no-drag">
+          {/* These controls only show when logged in */}
+          {!hideControls && (
+            <>
+              <button
+                onClick={handleInterviewMode}
+                title={isInterviewMode ? "Exit interview mode" : "Interview mode — auto-coaches from your screen"}
+                className={`no-drag flex items-center gap-1 px-2 h-6 rounded-md text-[10px] font-medium
+                            transition-all duration-200
+                            ${isInterviewMode
+                              ? "bg-ca-red/15 text-ca-red border border-ca-red/30"
+                              : "text-tx-tertiary hover:text-tx-primary hover:bg-surface-overlay"
+                            }`}
+              >
+                <Radio size={11} className={isInterviewMode ? "animate-pulse" : ""} />
+                {isInterviewMode && <span>LIVE</span>}
+              </button>
+              <IconButton onClick={() => setShowOnboarding(true)} title="How to use">
+                <HelpCircle size={13} />
+              </IconButton>
+              <IconButton onClick={toggleTheme} title={theme === "dark" ? "Light mode" : "Dark mode"}>
+                {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+              </IconButton>
+              <IconButton onClick={() => setShowSettings(true)} title="Settings">
+                <Settings size={13} />
+              </IconButton>
+              <IconButton onClick={toggleExpanded} title="Collapse to bubble">
+                <Minus size={13} />
+              </IconButton>
+            </>
+          )}
           <IconButton onClick={handleClose} title="Hide to tray" danger>
             <X size={13} />
           </IconButton>
