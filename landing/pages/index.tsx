@@ -31,7 +31,13 @@ export default function Home() {
           Coming Soon
         </button>
       </nav>
-      <style>{`@media (max-width: 600px) { .hide-mobile { display: none !important; } }`}</style>
+      <style>{`
+        @media (max-width: 600px) {
+          .hide-mobile { display: none !important; }
+          .grid-3 { grid-template-columns: 1fr !important; }
+          .grid-steps { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* HERO */}
       <div style={{ textAlign: "center", padding: "96px 24px 80px", maxWidth: 760, margin: "0 auto" }}>
@@ -62,7 +68,7 @@ export default function Home() {
       <section style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>How It Works</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Three steps to better interviews</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
+        <div className="grid-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
           {[
             { num: "01", title: "Open a problem", body: "Paste in any LeetCode or interview problem. CodeWhisper reads it and gets ready to coach." },
             { num: "02", title: "Get guided, not spoonfed", body: "Ask for a hint. CodeWhisper nudges your thinking with questions and patterns, the way a great interviewer would." },
@@ -83,7 +89,7 @@ export default function Home() {
       <section id="features" style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Features</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Everything you need to interview with confidence.</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+        <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
           {[
             { title: "4-level hint ladder", body: "Nudge → pattern → code skeleton → near-complete solution. Clicks the same level twice? Goes deeper, not in circles." },
             { title: "Interview Mode (LIVE)", body: "Hands-free coaching during mock interviews. Watches your screen every 12 seconds, nudges when you're stuck, escalates automatically." },
@@ -110,7 +116,7 @@ export default function Home() {
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Pricing</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 12 }}>Simple pricing</h2>
         <p style={{ fontSize: 16, color: colors.gray, marginBottom: 48 }}>No tricks. No tiers. Just the tool you need.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 20 }}>
+        <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 20 }}>
           {[
             { name: "Free Trial", price: "$0", period: "/ 7 days", features: ["7 days free", "Unlimited sessions", "Full hint ladder", "No credit card required"], featured: false },
             { name: "Pro", price: "$9", period: "/ month", features: ["Unlimited sessions", "Full hint ladder", "Session history", "Pattern library", "Priority support"], featured: false },
