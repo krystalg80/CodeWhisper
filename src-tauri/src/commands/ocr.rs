@@ -1,7 +1,6 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use rusty_tesseract::{Args, Image};
 use serde::Serialize;
-use tauri::command;
+use tauri::{command, Manager};
 
 #[derive(Debug, Serialize)]
 pub struct OcrResult {
@@ -9,42 +8,41 @@ pub struct OcrResult {
     pub confidence: f32,
 }
 
-/// Extract text from a base64-encoded PNG image using Tesseract OCR.
+/// Extract text from a base64-encoded PNG using the bundled Vision OCR helper.
 /// Runs 100% locally — image data is never transmitted anywhere.
-///
-/// # Requirements
-/// Tesseract must be installed on the host system:
-///   macOS:   brew install tesseract
-///   Ubuntu:  apt install tesseract-ocr
-///   Windows: installer from UB Mannheim
 #[command]
-pub async fn extract_text_from_screenshot(base64_png: String) -> Result<OcrResult, String> {
+pub async fn extract_text_from_screenshot(
+    app: tauri::AppHandle,
+    base64_png: String,
+) -> Result<OcrResult, String> {
     let png_bytes = STANDARD
         .decode(&base64_png)
         .map_err(|e| format!("Base64 decode failed: {e}"))?;
 
-    // Write to a temp file (rusty-tesseract takes a path)
     let tmp_path = std::env::temp_dir().join("cw_ocr_input.png");
-    std::fs::write(&tmp_path, &png_bytes).map_err(|e| format!("Temp file write failed: {e}"))?;
+    std::fs::write(&tmp_path, &png_bytes)
+        .map_err(|e| format!("Temp file write failed: {e}"))?;
 
-    let image = Image::from_path(&tmp_path).map_err(|e| format!("Tesseract image load failed: {e}"))?;
+    // Resolve the bundled ocr-helper binary path
+    let bin_path = app
+        .path()
+        .resolve("ocr-helper", tauri::path::BaseDirectory::Resource)
+        .map_err(|e| format!("Could not resolve ocr-helper path: {e}"))?;
 
-    let args = Args {
-        lang: "eng".to_string(),
-        config_variables: std::collections::HashMap::new(),
-        dpi: Some(150),
-        psm: Some(3), // Fully automatic page segmentation
-        oem: Some(3), // Default LSTM OCR Engine
-    };
+    let output = std::process::Command::new(&bin_path)
+        .arg(&tmp_path)
+        .output()
+        .map_err(|e| format!("OCR helper launch failed: {e}"))?;
 
-    let output =
-        rusty_tesseract::image_to_string(&image, &args).map_err(|e| format!("OCR failed: {e}"))?;
-
-    // Clean up temp file
     let _ = std::fs::remove_file(&tmp_path);
 
-    // Post-process: collapse runs of whitespace, trim blank lines
-    let cleaned = output
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("OCR failed: {stderr}"));
+    }
+
+    let raw = String::from_utf8_lossy(&output.stdout);
+    let cleaned = raw
         .lines()
         .map(|l| l.trim())
         .filter(|l| !l.is_empty())
@@ -53,6 +51,6 @@ pub async fn extract_text_from_screenshot(base64_png: String) -> Result<OcrResul
 
     Ok(OcrResult {
         text: cleaned,
-        confidence: 0.85, // rusty-tesseract doesn't expose per-document confidence easily
+        confidence: 0.90,
     })
 }

@@ -53,7 +53,7 @@
       "icons/icon.ico"
     ],
     "resources": [],
-    "externalBin": [],
+    "externalBin": ["binaries/ocr-helper"],
     "copyright": "© 2026 CodeWhisper",
     "category": "DeveloperTool",
     "shortDescription": "AI-powered coding interview coach",
