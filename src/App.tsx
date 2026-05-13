@@ -56,6 +56,8 @@ export default function App() {
       return;
     }
 
+    setIsPro(false);
+
     const refreshLicense = () =>
       checkUserLicense(user.id).then((isPro) => { if (isPro) setIsPro(true); });
 

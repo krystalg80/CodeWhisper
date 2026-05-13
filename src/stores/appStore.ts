@@ -116,7 +116,6 @@ export const useAppStore = create<AppStore>()(
         theme: s.theme,
         hasSeenOnboarding: s.hasSeenOnboarding,
         settings: s.settings,
-        isPro: s.isPro,
       }),
       onRehydrateStorage: () => (state) => {
         // Apply saved theme on load
