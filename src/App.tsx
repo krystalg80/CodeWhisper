@@ -5,7 +5,7 @@ import { AuthModal } from "@/components/Auth/AuthModal";
 import { TitleBar } from "@/components/Overlay/TitleBar";
 import { useAppStore } from "@/stores/appStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { getSessionCount } from "@/lib/tauri";
+
 import { useScreenCapture } from "@/hooks/useScreenCapture";
 import { supabase, checkUserLicense } from "@/lib/supabase";
 
@@ -70,9 +70,6 @@ export default function App() {
       setTrialDaysRemaining(Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))));
     }
 
-    getSessionCount()
-      .then(({ is_pro }) => { if (is_pro) setIsPro(true); })
-      .catch(() => {});
     loadSessions();
 
     return () => {};
