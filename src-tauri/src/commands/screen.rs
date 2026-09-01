@@ -1,6 +1,4 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use image::ImageEncoder;
-use screenshots::Screen;
 use serde::Serialize;
 use tauri::command;
 
@@ -12,38 +10,33 @@ pub struct ScreenshotResult {
     pub screen_index: usize,
 }
 
-/// Capture the primary (or specified) screen and return a base64-encoded PNG.
-/// All processing is local — raw pixels never leave the device.
-/// Only the OCR-extracted text is ever sent to external APIs.
+/// Capture the primary (or specified) screen using macOS screencapture,
+/// which correctly captures GPU-rendered browser content.
 #[command]
 pub async fn capture_screen(screen_index: Option<usize>) -> Result<ScreenshotResult, String> {
-    let screens = Screen::all().map_err(|e| format!("Failed to enumerate screens: {e}"))?;
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".into());
+    let tmp_path = format!("{home}/Desktop/cw_screen_cap.png");
 
-    if screens.is_empty() {
-        return Err("No screens found".into());
+    // -x = no shutter sound, -D <n> = display index (1-based)
+    let display = (screen_index.unwrap_or(0) + 1).to_string();
+    let status = std::process::Command::new("screencapture")
+        .args(["-x", "-D", &display, &tmp_path])
+        .status()
+        .map_err(|e| format!("screencapture failed to launch: {e}"))?;
+
+    if !status.success() {
+        return Err("screencapture exited with error".into());
     }
 
-    let idx = screen_index.unwrap_or(0).min(screens.len() - 1);
-    let screen = &screens[idx];
+    let png_bytes = std::fs::read(&tmp_path)
+        .map_err(|e| format!("Failed to read screenshot: {e}"))?;
+    let _ = std::fs::remove_file(&tmp_path);
 
-    let rgba_image = screen
-        .capture()
-        .map_err(|e| format!("Screen capture failed: {e}"))?;
-
-    let width = rgba_image.width();
-    let height = rgba_image.height();
-
-    // Encode to PNG in memory
-    let mut png_bytes: Vec<u8> = Vec::new();
-    let encoder = image::codecs::png::PngEncoder::new(&mut png_bytes);
-    encoder
-        .write_image(
-            rgba_image.as_raw(),
-            width,
-            height,
-            image::ExtendedColorType::Rgba8,
-        )
-        .map_err(|e| format!("PNG encoding failed: {e}"))?;
+    // Get dimensions from the PNG header
+    let img = image::load_from_memory(&png_bytes)
+        .map_err(|e| format!("Failed to decode PNG: {e}"))?;
+    let width = img.width();
+    let height = img.height();
 
     let base64_png = STANDARD.encode(&png_bytes);
 
@@ -51,7 +44,7 @@ pub async fn capture_screen(screen_index: Option<usize>) -> Result<ScreenshotRes
         base64_png,
         width,
         height,
-        screen_index: idx,
+        screen_index: screen_index.unwrap_or(0),
     })
 }
 

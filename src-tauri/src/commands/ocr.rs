@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde::Serialize;
-use tauri::{command, Manager};
+use tauri::command;
 
 #[derive(Debug, Serialize)]
 pub struct OcrResult {
@@ -12,7 +12,6 @@ pub struct OcrResult {
 /// Runs 100% locally — image data is never transmitted anywhere.
 #[command]
 pub async fn extract_text_from_screenshot(
-    app: tauri::AppHandle,
     base64_png: String,
 ) -> Result<OcrResult, String> {
     let png_bytes = STANDARD
@@ -23,11 +22,12 @@ pub async fn extract_text_from_screenshot(
     std::fs::write(&tmp_path, &png_bytes)
         .map_err(|e| format!("Temp file write failed: {e}"))?;
 
-    // Resolve the bundled ocr-helper binary path
-    let bin_path = app
-        .path()
-        .resolve("ocr-helper", tauri::path::BaseDirectory::Resource)
-        .map_err(|e| format!("Could not resolve ocr-helper path: {e}"))?;
+    // Tauri places externalBin in Contents/MacOS/ alongside the main executable
+    let bin_path = std::env::current_exe()
+        .map_err(|e| format!("Could not get executable path: {e}"))?
+        .parent()
+        .ok_or("Executable has no parent directory")?
+        .join("ocr-helper");
 
     let output = std::process::Command::new(&bin_path)
         .arg(&tmp_path)
