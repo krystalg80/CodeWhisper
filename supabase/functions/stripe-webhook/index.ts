@@ -69,6 +69,48 @@ serve(async (req) => {
     console.log(`License created for ${supabaseUid}: ${licenseKey}`);
   }
 
+  // Revoke access when a subscription is cancelled or falls out of good
+  // standing (lifetime purchases use one-time "payment" mode, not
+  // subscriptions, so they never generate these events).
+  if (
+    event.type === "customer.subscription.deleted" ||
+    event.type === "customer.subscription.updated"
+  ) {
+    const subscription = event.data.object as Stripe.Subscription;
+    const revokedStatuses = ["canceled", "unpaid", "incomplete_expired"];
+
+    if (
+      event.type === "customer.subscription.deleted" ||
+      revokedStatuses.includes(subscription.status)
+    ) {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer.id;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("stripe_customer_id", customerId)
+        .single();
+
+      if (profile?.id) {
+        await supabase
+          .from("licenses")
+          .update({ is_active: false })
+          .eq("user_id", profile.id)
+          .eq("plan", "pro"); // never touch lifetime licenses
+
+        console.log(`License revoked for ${profile.id} (subscription ${subscription.status})`);
+      }
+    }
+  }
+
   return new Response(JSON.stringify({ received: true }), {
     headers: { "Content-Type": "application/json" },
   });

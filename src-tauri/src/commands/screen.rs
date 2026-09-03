@@ -14,8 +14,10 @@ pub struct ScreenshotResult {
 /// which correctly captures GPU-rendered browser content.
 #[command]
 pub async fn capture_screen(screen_index: Option<usize>) -> Result<ScreenshotResult, String> {
-    let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".into());
-    let tmp_path = format!("{home}/Desktop/cw_screen_cap.png");
+    let tmp_path = std::env::temp_dir()
+        .join("cw_screen_cap.png")
+        .to_string_lossy()
+        .into_owned();
 
     // -x = no shutter sound, -D <n> = display index (1-based)
     let display = (screen_index.unwrap_or(0) + 1).to_string();

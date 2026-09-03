@@ -73,15 +73,18 @@ pub async fn validate_license_key(
         });
     }
 
+    // Validated via the validate-license Edge Function (service-role lookup)
+    // rather than a direct table read — the licenses table's RLS no longer
+    // allows anon reads, so this can't be used to enumerate other users' keys.
     #[derive(Deserialize)]
-    struct LicenseRow {
-        is_active: bool,
-        plan: String,
+    struct ValidateResponse {
+        valid: bool,
+        plan: Option<String>,
         email: Option<String>,
         expires_at: Option<String>,
     }
 
-    let url = format!("{supabase_url}/rest/v1/licenses?license_key=eq.{license_key}&select=*");
+    let url = format!("{supabase_url}/functions/v1/validate-license");
 
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
@@ -97,8 +100,9 @@ pub async fn validate_license_key(
 
     let client = reqwest::Client::new();
     let resp = client
-        .get(&url)
+        .post(&url)
         .headers(headers)
+        .json(&serde_json::json!({ "license_key": license_key }))
         .send()
         .await
         .map_err(|e| format!("Network error: {e}"))?;
@@ -107,30 +111,29 @@ pub async fn validate_license_key(
         return Err(format!("License server error: {}", resp.status()));
     }
 
-    let rows: Vec<LicenseRow> = resp.json().await.map_err(|e| format!("Parse error: {e}"))?;
+    let result: ValidateResponse = resp.json().await.map_err(|e| format!("Parse error: {e}"))?;
 
-    if let Some(row) = rows.first() {
-        if row.is_active {
-            let now = chrono::Utc::now().to_rfc3339();
-            // Persist locally
-            sqlx::query(
-                "UPDATE license SET license_key = ?, email = ?, is_active = 1, plan = ?, expires_at = ?, validated_at = ? WHERE id = 1",
-            )
-            .bind(&license_key)
-            .bind(&row.email)
-            .bind(&row.plan)
-            .bind(&row.expires_at)
-            .bind(&now)
-            .execute(&state.db)
-            .await
-            .map_err(|e| e.to_string())?;
+    if result.valid {
+        let plan = result.plan.clone().unwrap_or_else(|| "pro".into());
+        let now = chrono::Utc::now().to_rfc3339();
+        // Persist locally
+        sqlx::query(
+            "UPDATE license SET license_key = ?, email = ?, is_active = 1, plan = ?, expires_at = ?, validated_at = ? WHERE id = 1",
+        )
+        .bind(&license_key)
+        .bind(&result.email)
+        .bind(&plan)
+        .bind(&result.expires_at)
+        .bind(&now)
+        .execute(&state.db)
+        .await
+        .map_err(|e| e.to_string())?;
 
-            return Ok(LicenseValidationResult {
-                valid: true,
-                plan: row.plan.clone(),
-                message: format!("License activated ({})", row.plan),
-            });
-        }
+        return Ok(LicenseValidationResult {
+            valid: true,
+            plan: plan.clone(),
+            message: format!("License activated ({plan})"),
+        });
     }
 
     Ok(LicenseValidationResult {
