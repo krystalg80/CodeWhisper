@@ -35,6 +35,24 @@ export async function signOut() {
   return supabase.auth.signOut();
 }
 
+export async function updatePassword(newPassword: string) {
+  if (!supabase) throw new Error("Supabase not configured");
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
+// Sends a confirmation link to the new address — the email doesn't change
+// until the user clicks it, so `user.email` in the store stays the old one
+// until the auth listener picks up the confirmed session.
+export async function updateEmail(newEmail: string) {
+  if (!supabase) throw new Error("Supabase not configured");
+  const { error } = await supabase.auth.updateUser(
+    { email: newEmail },
+    { emailRedirectTo: "https://codewhisper-ai.com/auth/callback" }
+  );
+  if (error) throw error;
+}
+
 export async function getSession() {
   if (!supabase) return null;
   const { data } = await supabase.auth.getSession();

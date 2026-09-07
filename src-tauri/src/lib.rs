@@ -35,26 +35,39 @@ pub fn run() {
             {
                 use objc::{msg_send, sel, sel_impl, class};
 
-                if let Some(win) = app.get_webview_window("main") {
-                    let ns_win = win.ns_window().expect("failed to get NSWindow");
-                    unsafe {
-                        let _: () = msg_send![ns_win as *mut objc::runtime::Object, setSharingType: 0u64];
-                    }
-                }
-
-                // Set dock icon explicitly from embedded bytes so it matches the bundled icon
-                // in both dev and release modes.
-                let icon_bytes = include_bytes!("../icons/icon.icns");
-                unsafe {
+                // Build an NSImage from embedded PNG/ICNS bytes.
+                unsafe fn ns_image_from_bytes(bytes: &[u8]) -> *mut objc::runtime::Object {
+                    use objc::{msg_send, sel, sel_impl, class};
                     let data: *mut objc::runtime::Object = msg_send![
                         class!(NSData),
-                        dataWithBytes: icon_bytes.as_ptr()
-                        length: icon_bytes.len()
+                        dataWithBytes: bytes.as_ptr()
+                        length: bytes.len()
                     ];
                     let image: *mut objc::runtime::Object = msg_send![class!(NSImage), alloc];
-                    let image: *mut objc::runtime::Object = msg_send![image, initWithData: data];
+                    msg_send![image, initWithData: data]
+                }
+
+                // Full app icon (dark rounded-square + C mark) — matches the bundled icon in
+                // both dev and release modes, used for the persistent Dock icon.
+                let icon_image = unsafe { ns_image_from_bytes(include_bytes!("../icons/icon.icns")) };
+                // Bare C mark, transparent background — used only for the miniaturized Dock
+                // tile, where the full square icon would look redundant/boxed-in.
+                let mini_image = unsafe { ns_image_from_bytes(include_bytes!("../icons/menubar-mark.png")) };
+
+                unsafe {
                     let ns_app: *mut objc::runtime::Object = msg_send![class!(NSApplication), sharedApplication];
-                    let _: () = msg_send![ns_app, setApplicationIconImage: image];
+                    let _: () = msg_send![ns_app, setApplicationIconImage: icon_image];
+                }
+
+                if let Some(win) = app.get_webview_window("main") {
+                    let ns_win = win.ns_window().expect("failed to get NSWindow") as *mut objc::runtime::Object;
+                    unsafe {
+                        let _: () = msg_send![ns_win, setSharingType: 0u64];
+                        // The window is transparent/undecorated, so the default genie-minimize
+                        // would use a live screenshot of its (mostly invisible) pixels as the
+                        // Dock tile. Force it to use the C mark instead.
+                        let _: () = msg_send![ns_win, setMiniwindowImage: mini_image];
+                    }
                 }
             }
 
