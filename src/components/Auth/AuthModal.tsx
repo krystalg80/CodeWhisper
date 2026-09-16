@@ -86,9 +86,17 @@ export function AuthModal({ onSuccess }: Props) {
         if (err) throw err;
         onSuccess();
       } else {
-        const { error: err } = await signUpWithEmail(email, password, fullName);
+        const { data, error: err } = await signUpWithEmail(email, password, fullName);
         if (err) throw err;
-        setConfirmSent(true);
+        // Supabase doesn't error on signUp for an already-registered email (anti-enumeration) —
+        // it silently no-ops and returns a user with no identities instead of sending a new
+        // confirmation email. Detect that so we don't falsely tell the user to check their inbox.
+        if (data?.user && data.user.identities?.length === 0) {
+          setError("An account with this email already exists. Try signing in instead.");
+          setMode("signin");
+        } else {
+          setConfirmSent(true);
+        }
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
