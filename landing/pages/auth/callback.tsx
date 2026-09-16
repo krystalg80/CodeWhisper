@@ -46,7 +46,7 @@ export default function AuthCallback() {
               Your account is verified. The CodeWhisper app should open automatically.
             </p>
             <p style={{ fontSize: 14, color: colors.gray, lineHeight: 1.7, padding: "16px 24px", border: `1px solid ${colors.purpleBorder}`, borderRadius: 12 }}>
-              If the app didn't open, launch <strong>Lens</strong> from your Applications folder and sign in with your email and password.
+              If the app didn't open, launch <strong>CodeWhisper</strong> from your Applications folder and sign in with your email and password.
             </p>
           </>
         )}
