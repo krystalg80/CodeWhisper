@@ -34,19 +34,15 @@ export default function Terms() {
           },
           {
             title: "Free trial",
-            body: "New accounts include a 7-day free trial with unlimited sessions. One trial per account. We reserve the right to end the trial period at any time with reasonable notice.",
+            body: "New accounts include a 14-day free trial with unlimited sessions. One trial per account. We reserve the right to end the trial period at any time with reasonable notice.",
           },
           {
             title: "Pro subscription",
             body: "Pro subscriptions are billed monthly. You may cancel at any time from your account settings. Upon cancellation, you retain access until the end of your current billing period. No partial refunds are issued for unused time.",
           },
           {
-            title: "Lifetime license",
-            body: "Lifetime licenses are a one-time purchase that grants access to the app and all future updates. Refunds are available within 7 days of purchase. After 7 days, all sales are final.",
-          },
-          {
             title: "Acceptable use",
-            body: "You agree to use CodeWhisper only for lawful purposes. CodeWhisper is designed as a thinking aid — it guides your reasoning through Socratic hints and never provides direct answers. You may use it during technical interviews as a cognitive aid, similar to using documentation or notes, provided your interview format permits such tools. You are solely responsible for ensuring your use complies with the rules of any interview, assessment, or hiring process you participate in.",
+            body: "You agree to use CodeWhisper only for lawful purposes. CodeWhisper is a solo coding practice coach, designed for independent practice on LeetCode/HackerRank-style problems. It is not designed or licensed for use during any real, proctored, or interviewer-observed technical interview, exam, or assessment. You are solely responsible for ensuring your use complies with the rules of any interview, assessment, or hiring process you participate in.",
           },
           {
             title: "Disclaimer",

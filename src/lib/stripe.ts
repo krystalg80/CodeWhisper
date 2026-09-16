@@ -11,22 +11,13 @@ export interface CheckoutSession {
 export const STRIPE_PLANS = {
   pro_monthly: {
     name: "CodeWhisper Pro",
-    price: "$9/month",
+    price: "$5/month",
     features: [
       "Unlimited sessions",
       "Full hint ladder",
       "Session history",
       "Pattern library",
       "Priority support",
-    ],
-  },
-  pro_lifetime: {
-    name: "CodeWhisper Lifetime",
-    price: "$79 once",
-    features: [
-      "Everything in Pro",
-      "Lifetime updates",
-      "No recurring fee",
     ],
   },
 } as const;

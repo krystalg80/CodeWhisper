@@ -4,9 +4,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 const ANTHROPIC_VERSION = "2023-06-01";
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 14;
 
-const SYSTEM_PROMPT = `You are an expert coding interview coach named CodeWhisper. Your job is NOT to solve problems for the user — it is to guide them to solve it themselves using the Socratic method. Always respond with questions, nudges, and progressive hints. Never write complete solutions. Identify the algorithm pattern the problem belongs to and help the user recognize it themselves. Keep responses concise — 2 to 4 sentences max. If the user is stuck, increase the hint level but never give the full answer.`;
+const SYSTEM_PROMPT = `You are CodeWhisper, a solo coding practice coach. The user is working through a LeetCode/HackerRank-style problem on their own — there is no interviewer or grader watching this session. Default to the Socratic method: respond with questions, nudges, and progressive hints rather than immediately writing the solution. Identify the algorithm pattern the problem belongs to and help the user recognize it themselves. Keep responses concise — 2 to 4 sentences max. If the user is stuck and explicitly asks for the answer or the full solution, it's fine to give it — this is their own practice time and hiding it from them serves no one.`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,7 +44,7 @@ serve(async (req) => {
     const isPro = Boolean(license);
 
     // Parse request body
-    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level, attempt_count, prior_hints } = await req.json();
+    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level } = await req.json();
 
     // ── Extract action — clean raw OCR text into just the problem statement ──
     if (action === "extract") {
@@ -121,88 +121,6 @@ Required JSON shape:
       return new Response(raw, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ── Interview mode action (no usage counted — session already open) ───────
-    if (action === "interview") {
-      const attemptCount = Number(attempt_count ?? 0);
-      const gaveUp = attemptCount >= 20;
-
-      const hintLvl = Number(hint_level ?? 1);
-
-      const noRepeatRule = `CRITICAL: You will be given the conversation history of hints already given. Read them carefully. NEVER repeat or rephrase something you already said — not the pattern name, not the same question, not the same instruction. Every response must give the user something NEW they didn't have before. If the screen hasn't changed, go one step deeper than your last hint.`;
-
-      const interviewPrompt = gaveUp
-        ? `You are CodeWhisper. The user has been stuck on this problem for a long time and needs the full solution. Provide:
-1. The complete, correct working code (in a code block)
-2. A concise step-by-step explanation of WHY it works — not just what it does
-3. One sentence on the key insight they were missing
-
-Be educational and warm — they tried hard.`
-        : hintLvl <= 1
-        ? `You are CodeWhisper in Interview Mode. Give ONE Socratic nudge in 1-2 sentences.
-- Ask a guiding question that points toward the NEXT step — not a step you already asked about
-- If they have no code yet, ask what the base case should be or what data structure fits
-- Do NOT give any code or pseudocode
-${noRepeatRule}`
-        : hintLvl === 2
-        ? `You are CodeWhisper in Interview Mode. Give a directional hint in 2-3 sentences.
-- If you haven't yet named the algorithm pattern, name it now. If you already named it, skip that and go deeper.
-- Describe the next concrete step in plain English — not a step already covered in prior hints
-- If they have a bug, identify the specific line and category of bug
-${noRepeatRule}`
-        : hintLvl === 3
-        ? `You are CodeWhisper in Interview Mode. The user needs concrete structure. Give a code skeleton.
-- Write actual code with comments or "..." only for the ONE piece they haven't figured out yet
-- Look at what they already have on screen — don't repeat structure they've already written
-- Keep it to ~10 lines max
-${noRepeatRule}`
-        : `You are CodeWhisper in Interview Mode. The user is seriously stuck. Give the near-complete solution.
-- Write working code with just ONE key line replaced by "# YOUR LOGIC HERE"
-- Pick the piece they are MOST stuck on based on the screen and prior hints
-- Explain in 1 sentence what that missing piece needs to do
-- Be warm — they are close
-${noRepeatRule}`;
-
-      const contextMsg = `PROBLEM STATEMENT:\n${problem_text || "(not yet captured)"}\n\nCURRENT SCREEN STATE:\n${screen_text || "(empty)"}`;
-      const maxTokens = gaveUp ? 1024 : hintLvl <= 2 ? 200 : 512;
-
-      // Build messages: inject prior hints so Claude doesn't repeat itself
-      const historyMessages: { role: string; content: string }[] = Array.isArray(prior_hints) && prior_hints.length > 0
-        ? prior_hints
-        : [];
-      const claudeMessages = [
-        ...historyMessages,
-        { role: "user", content: contextMsg },
-      ];
-
-      const claudeResp = await fetch(CLAUDE_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-          "anthropic-version": ANTHROPIC_VERSION,
-        },
-        body: JSON.stringify({
-          model: CLAUDE_MODEL,
-          max_tokens: maxTokens,
-          system: interviewPrompt,
-          messages: claudeMessages,
-        }),
-      });
-
-      if (!claudeResp.ok) {
-        const err = await claudeResp.text();
-        throw new Error(`Claude API error: ${err}`);
-      }
-
-      const claudeData = await claudeResp.json();
-      const text = claudeData.content?.find((b: { type: string }) => b.type === "text")?.text ?? "";
-
-      return new Response(
-        JSON.stringify({ message: text, revealed: gaveUp }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // ── Coaching action ───────────────────────────────────────────────────────
     if (!user_message) throw new Error("user_message is required");
 
@@ -215,7 +133,7 @@ ${noRepeatRule}`;
 
       if (trialExpired) {
         return new Response(
-          JSON.stringify({ error: "free_limit_reached", message: "Your 7-day trial has ended. Upgrade to Pro for unlimited sessions." }),
+          JSON.stringify({ error: "free_limit_reached", message: "Your 14-day trial has ended. Upgrade to Pro for unlimited sessions." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

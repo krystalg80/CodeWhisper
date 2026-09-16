@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.licenses (
     license_key TEXT UNIQUE NOT NULL,
     user_id UUID REFERENCES auth.users(id),
     email TEXT,
-    plan TEXT NOT NULL DEFAULT 'pro',  -- 'pro' | 'lifetime'
+    plan TEXT NOT NULL DEFAULT 'pro',
     is_active BOOLEAN NOT NULL DEFAULT true,
     expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()

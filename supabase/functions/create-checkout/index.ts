@@ -9,7 +9,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
 
 const PRICE_IDS: Record<string, string> = {
   pro_monthly: Deno.env.get("STRIPE_PRICE_ID_PRO_MONTHLY") ?? "",
-  pro_lifetime: Deno.env.get("STRIPE_PRICE_ID_PRO_LIFETIME") ?? "",
 };
 
 serve(async (req) => {
@@ -62,7 +61,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
-      mode: plan_id === "pro_lifetime" ? "payment" : "subscription",
+      mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `https://codewhisper-ai.com/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

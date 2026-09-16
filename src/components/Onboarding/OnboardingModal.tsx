@@ -13,7 +13,7 @@ const STEPS: Step[] = [
     title: "Welcome to CodeWhisper",
     emoji: "👋",
     description:
-      "Your AI coding interview coach. It never gives you the answer — it guides you to find it yourself using the Socratic method.",
+      "Your solo coding practice coach — the friend looking over your shoulder while you work through LeetCode/HackerRank-style problems on your own.",
     tips: [
       "The overlay stays on top of all your windows",
       "Click the hexagon icon to collapse it out of the way",
@@ -26,8 +26,8 @@ const STEPS: Step[] = [
     description:
       "CodeWhisper handles AI for you — no API key needed. Just create a free account to get started.",
     tips: [
-      "7-day free trial — no credit card required",
-      "Upgrade to Pro or Lifetime after your trial",
+      "14-day free trial — no credit card required",
+      "Upgrade to Pro after your trial",
       "Your sessions and history are saved to your account",
     ],
   },
@@ -47,7 +47,7 @@ const STEPS: Step[] = [
     title: "Step 3 — Start a Session",
     emoji: "💬",
     description:
-      "Switch to the Coach tab and start thinking out loud. The AI responds like a real interview coach.",
+      "Switch to the Coach tab and start thinking out loud. The AI responds like a coach reviewing your approach in real time.",
     tips: [
       "Ask anything: 'I don't know where to start'",
       "Paste your code using the 'Attach your code' toggle",
@@ -69,22 +69,7 @@ const STEPS: Step[] = [
     ],
   },
   {
-    title: "Step 5 — Interview Mode (LIVE)",
-    emoji: "📡",
-    description:
-      "Going into a real interview? Click LIVE and CodeWhisper coaches you hands-free — it watches your screen and nudges you automatically. No typing needed.",
-    tips: [
-      "Click the 📡 LIVE button in the title bar — it auto-starts a session",
-      "Checks your screen every 12 seconds, nudges when your code changes or you've been quiet 45 seconds",
-      "Hints auto-escalate the longer you're stuck: gentle → pattern → code skeleton → near-complete",
-      "After 20 coaching cycles it reveals the full solution with an explanation",
-      "After the reveal it goes quiet — only speaks up again if you make new changes",
-      "When LeetCode shows Accepted, click ✓ Solved — saves to history with a green check",
-      "Session auto-ends after 3 minutes of no activity post-solution",
-    ],
-  },
-  {
-    title: "Step 6 — Learn the Patterns",
+    title: "Step 5 — Learn the Patterns",
     emoji: "📚",
     description:
       "The Patterns tab has 10 built-in algorithm patterns with templates, complexity, and example problems.",
@@ -99,12 +84,11 @@ const STEPS: Step[] = [
     title: "You're ready!",
     emoji: "🚀",
     description:
-      "You have a full 7-day free trial to get started — no credit card required. After that, upgrade to Pro or grab a Lifetime license.",
+      "You have a full 14-day free trial to get started — no credit card required. After that, upgrade to Pro to keep going.",
     tips: [
       "Session history is in the History tab — solved problems show a green ✓",
-      "Use Interview Mode (📡) for hands-free coaching during mock interviews",
-      "Hints escalate automatically — you never have to manage levels in LIVE mode",
-      "The app is invisible during screen share on macOS",
+      "Use the History tab to spot which problem types or bugs you keep hitting",
+      "When you're done, click ✓ Solved — saves to history with a green check",
       "Click ? anytime to reopen this guide",
       "Good luck — you've got this!",
     ],

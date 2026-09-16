@@ -29,8 +29,7 @@ pub fn run() {
 
             app.manage(state);
 
-            // Exclude window from screen capture on macOS (invisible in Zoom, OBS, screenshots)
-            // Also explicitly set the dock icon so dev mode uses the correct icon file.
+            // Set the dock icon explicitly so dev mode uses the correct icon file.
             #[cfg(target_os = "macos")]
             {
                 use objc::{msg_send, sel, sel_impl, class};
@@ -62,7 +61,6 @@ pub fn run() {
                 if let Some(win) = app.get_webview_window("main") {
                     let ns_win = win.ns_window().expect("failed to get NSWindow") as *mut objc::runtime::Object;
                     unsafe {
-                        let _: () = msg_send![ns_win, setSharingType: 0u64];
                         // The window is transparent/undecorated, so the default genie-minimize
                         // would use a live screenshot of its (mostly invisible) pixels as the
                         // Dock tile. Force it to use the C mark instead.

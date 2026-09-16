@@ -14,8 +14,6 @@ interface SessionStore {
   analysis: ProblemAnalysis | null;
   isAnalyzing: boolean;
   isSendingMessage: boolean;
-  autoCoachCount: number;
-  solutionRevealed: boolean;
 
   // History
   sessions: Session[];
@@ -28,7 +26,6 @@ interface SessionStore {
   setCurrentCode: (code: string) => void;
   requestHint: () => Promise<void>;
   sendMessage: (message: string) => Promise<void>;
-  sendAutoCoach: (screenText: string) => Promise<void>;
   analyzeProblem: () => Promise<void>;
   loadSessions: () => Promise<void>;
   loadSession: (id: string) => Promise<void>;
@@ -46,8 +43,6 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   analysis: null,
   isAnalyzing: false,
   isSendingMessage: false,
-  autoCoachCount: 0,
-  solutionRevealed: false,
   sessions: [],
   isLoadingSessions: false,
 
@@ -62,8 +57,6 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       messages: [],
       hintLevel: 1,
       analysis: null,
-      autoCoachCount: 0,
-      solutionRevealed: false,
     });
     useAppStore.getState().setActiveTab("chat");
   },
@@ -84,8 +77,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       hintLevelReached: get().hintLevel,
     });
 
-    set({ currentSession: null, messages: [], hintLevel: 1, analysis: null, autoCoachCount: 0, solutionRevealed: false });
-    useAppStore.setState({ isInterviewMode: false });
+    set({ currentSession: null, messages: [], hintLevel: 1, analysis: null });
     get().loadSessions();
   },
 
@@ -233,70 +225,6 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         content: `Error: ${err instanceof Error ? err.message : String(err)}`,
       });
       set({ messages: [...get().messages, errMsg] });
-    } finally {
-      set({ isSendingMessage: false });
-    }
-  },
-
-  sendAutoCoach: async (screenText: string) => {
-    const { currentSession, problemText, isSendingMessage, autoCoachCount } = get();
-    if (isSendingMessage) return;
-    if (!currentSession) return;
-    const session = currentSession;
-
-    set({ isSendingMessage: true });
-    try {
-      if (!supabase) throw new Error("Supabase not configured");
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-      if (!token) throw new Error("Not signed in");
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-      const nextCount = autoCoachCount + 1;
-      // Auto-escalate hint depth based on how many attempts have been made
-      const autoHintLevel: HintLevel =
-        nextCount <= 4 ? 1 :
-        nextCount <= 8 ? 2 :
-        nextCount <= 14 ? 3 : 4;
-      set({ autoCoachCount: nextCount, hintLevel: autoHintLevel });
-
-      const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "apikey": anonKey,
-        },
-        body: JSON.stringify({
-          action: "interview",
-          problem_text: problemText,
-          screen_text: screenText,
-          hint_level: autoHintLevel,
-          attempt_count: nextCount,
-          prior_hints: get().messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      const data = await resp.json();
-      if (!resp.ok || !data.message) return;
-
-      const saved = await tauriApi.saveMessage({
-        sessionId: session.id,
-        role: "assistant",
-        content: data.message,
-        hintLevel: autoHintLevel,
-      });
-
-      // After revealing the solution, reset counter so future polls go back to Socratic coaching
-      if (data.revealed) {
-        set({ solutionRevealed: true, autoCoachCount: 0 });
-      }
-
-      set({ messages: [...get().messages, { ...saved, is_auto: true, is_revealed: data.revealed ?? false }] });
-    } catch (err) {
-      console.error("Auto-coach error:", err);
     } finally {
       set({ isSendingMessage: false });
     }

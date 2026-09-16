@@ -1,4 +1,4 @@
-import { X, Minus, Settings, HelpCircle, Sun, Moon, Radio } from "lucide-react";
+import { X, Minus, Settings, HelpCircle, Sun, Moon } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore } from "@/stores/appStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -7,22 +7,10 @@ import { OnboardingModal } from "@/components/Onboarding/OnboardingModal";
 import { useState } from "react";
 
 export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
-  const { theme, toggleTheme, isInterviewMode, toggleInterviewMode, isPro, trialDaysRemaining, toggleExpanded } = useAppStore();
-  const { currentSession, startNewSession, analyzeProblem, problemText } = useSessionStore();
+  const { theme, toggleTheme, isPro, trialDaysRemaining, toggleExpanded } = useAppStore();
+  const { currentSession } = useSessionStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-
-  const handleInterviewMode = async () => {
-    if (!isInterviewMode) {
-      if (!currentSession) {
-        await startNewSession("Interview Session");
-        if (problemText.trim()) analyzeProblem();
-      }
-      toggleInterviewMode();
-    } else {
-      toggleInterviewMode();
-    }
-  };
 
   const handleClose = async () => {
     await getCurrentWindow().hide();
@@ -67,19 +55,6 @@ export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
           {/* These controls only show when logged in */}
           {!hideControls && (
             <>
-              <button
-                onClick={handleInterviewMode}
-                title={isInterviewMode ? "Exit interview mode" : "Interview mode — auto-coaches from your screen"}
-                className={`no-drag flex items-center gap-1 px-2 h-6 rounded-md text-[10px] font-medium
-                            transition-all duration-200
-                            ${isInterviewMode
-                              ? "bg-ca-red/15 text-ca-red border border-ca-red/30"
-                              : "text-tx-tertiary hover:text-tx-primary hover:bg-surface-overlay"
-                            }`}
-              >
-                <Radio size={11} className={isInterviewMode ? "animate-pulse" : ""} />
-                {isInterviewMode && <span>LIVE</span>}
-              </button>
               <IconButton onClick={() => setShowOnboarding(true)} title="How to use">
                 <HelpCircle size={13} />
               </IconButton>

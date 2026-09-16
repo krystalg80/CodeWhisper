@@ -29,7 +29,6 @@ serve(async (req) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const supabaseUid = session.metadata?.supabase_uid;
-    const planId = session.metadata?.plan_id ?? "pro";
 
     if (!supabaseUid) {
       return new Response("Missing supabase_uid in metadata", { status: 400 });
@@ -43,10 +42,8 @@ serve(async (req) => {
     // Generate a license key
     const licenseKey = `CW-${crypto.randomUUID().toUpperCase().replace(/-/g, "").slice(0, 16)}`;
 
-    // Determine expiry (lifetime = null, monthly = 1 year rolling)
-    const expiresAt = planId === "pro_lifetime"
-      ? null
-      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+    // Monthly subscription — 1 year rolling expiry, refreshed while the subscription stays active
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
     // Get user email
     const { data: profile } = await supabase
@@ -60,7 +57,7 @@ serve(async (req) => {
       license_key: licenseKey,
       user_id: supabaseUid,
       email: profile?.email,
-      plan: planId === "pro_lifetime" ? "lifetime" : "pro",
+      plan: "pro",
       is_active: true,
       expires_at: expiresAt,
     });
@@ -69,9 +66,7 @@ serve(async (req) => {
     console.log(`License created for ${supabaseUid}: ${licenseKey}`);
   }
 
-  // Revoke access when a subscription is cancelled or falls out of good
-  // standing (lifetime purchases use one-time "payment" mode, not
-  // subscriptions, so they never generate these events).
+  // Revoke access when a subscription is cancelled or falls out of good standing.
   if (
     event.type === "customer.subscription.deleted" ||
     event.type === "customer.subscription.updated"
@@ -104,7 +99,7 @@ serve(async (req) => {
           .from("licenses")
           .update({ is_active: false })
           .eq("user_id", profile.id)
-          .eq("plan", "pro"); // never touch lifetime licenses
+          .eq("plan", "pro");
 
         console.log(`License revoked for ${profile.id} (subscription ${subscription.status})`);
       }

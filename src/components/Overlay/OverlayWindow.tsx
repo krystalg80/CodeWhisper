@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/dpi";
 import { useAppStore } from "@/stores/appStore";
-import { useInterviewMode } from "@/hooks/useInterviewMode";
 import { CollapsedBubble } from "./CollapsedBubble";
 import { ExpandedPanel } from "./ExpandedPanel";
 
@@ -13,7 +12,6 @@ const COLLAPSED_H = 64;
 
 export function OverlayWindow() {
   const { isExpanded } = useAppStore();
-  useInterviewMode();
 
   useEffect(() => {
     const win = getCurrentWindow();

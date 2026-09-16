@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage as ChatMessageType } from "@/types";
 import { HINT_LEVEL_LABELS } from "@/types";
-import { Bot, User, Radio } from "lucide-react";
+import { Bot, User } from "lucide-react";
 
 interface Props { message: ChatMessageType }
 
@@ -23,23 +23,11 @@ export function ChatMessage({ message }: Props) {
 
       {/* Bubble */}
       <div className={`min-w-0 flex-1 max-w-[86%] flex flex-col gap-0.5 ${isUser ? "items-end" : "items-start"}`}>
-        {isAssistant && (
+        {isAssistant && message.hint_level && message.hint_level > 0 && (
           <div className="flex items-center gap-1.5 ml-0.5">
-            {message.is_revealed ? (
-              <span className="flex items-center gap-0.5 text-[10px] text-ca-teal/80 font-medium">
-                Solution revealed
-              </span>
-            ) : message.is_auto ? (
-              <span className="flex items-center gap-0.5 text-[10px] text-ca-red/70 font-medium">
-                <Radio size={9} />
-                Auto
-              </span>
-            ) : null}
-            {!message.is_revealed && message.hint_level && message.hint_level > 0 && (
-              <span className="text-[10px] text-ca-purple/60 font-medium">
-                {HINT_LEVEL_LABELS[message.hint_level as keyof typeof HINT_LEVEL_LABELS]}
-              </span>
-            )}
+            <span className="text-[10px] text-ca-purple/60 font-medium">
+              {HINT_LEVEL_LABELS[message.hint_level as keyof typeof HINT_LEVEL_LABELS]}
+            </span>
           </div>
         )}
 

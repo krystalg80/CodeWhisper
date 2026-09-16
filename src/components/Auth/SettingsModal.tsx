@@ -210,7 +210,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             ) : (
               <>
                 <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                  Your 7-day trial is active. Enter a license key after purchase to unlock unlimited sessions.
+                  Your 14-day trial is active. Enter a license key after purchase to unlock unlimited sessions.
                 </p>
                 <div className="flex gap-2">
                   <input

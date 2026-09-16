@@ -44,10 +44,6 @@ interface AppStore {
   setCapturing: (v: boolean) => void;
   setLastScreenshot: (s: string | null) => void;
 
-  // Interview mode
-  isInterviewMode: boolean;
-  toggleInterviewMode: () => void;
-
   // Audio
   isListening: boolean;
   setListening: (v: boolean) => void;
@@ -92,7 +88,7 @@ export const useAppStore = create<AppStore>()(
         set((state) => ({ settings: { ...state.settings, ...s } })),
 
       isPro: false,
-      trialDaysRemaining: 7,
+      trialDaysRemaining: 14,
       setIsPro: (v) => set({ isPro: v }),
       setTrialDaysRemaining: (n) => set({ trialDaysRemaining: n }),
 
@@ -100,9 +96,6 @@ export const useAppStore = create<AppStore>()(
       lastScreenshot: null,
       setCapturing: (v) => set({ isCapturing: v }),
       setLastScreenshot: (s) => set({ lastScreenshot: s }),
-
-      isInterviewMode: false,
-      toggleInterviewMode: () => set((s) => ({ isInterviewMode: !s.isInterviewMode })),
 
       isListening: false,
       setListening: (v) => set({ isListening: v }),

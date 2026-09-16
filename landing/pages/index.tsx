@@ -45,20 +45,17 @@ export default function Home() {
           AI Coach · Always On Top
         </p>
         <h1 style={{ fontSize: "clamp(36px, 6vw, 58px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 24 }}>
-          Your interview coach,<br />
-          <span style={{ color: colors.purple }}>whispering from the corner.</span>
+          The friend looking<br />
+          <span style={{ color: colors.purple }}>over your shoulder.</span>
         </h1>
         <p style={{ fontSize: 18, color: colors.gray, maxWidth: 520, margin: "0 auto 36px", lineHeight: 1.7 }}>
-          Never gives the answer. Always nudges your thinking. Practice LeetCode with Socratic hints that float invisibly over your screen.
+          A solo coding practice coach that floats over your screen while you work LeetCode and HackerRank problems — nudging your thinking, flagging bugs before you hit run, and explaining what went wrong when you do.
         </p>
         <button style={{ background: colors.purple, color: "#fff", border: "none", borderRadius: 12, padding: "14px 28px", fontSize: 15, fontWeight: 500, opacity: 0.85, cursor: "default" }}>
           Coming Soon for Mac
         </button>
         <p style={{ marginTop: 14, fontSize: 13, color: colors.grayLight }}>
-          Free 7-day trial · No credit card required · Windows coming soon
-        </p>
-        <p style={{ marginTop: 8, fontSize: 12, color: colors.grayLight, opacity: 0.7 }}>
-          The app installs as <strong style={{ color: colors.gray }}>"Lens"</strong> — a neutral name that won't raise eyebrows on your screen.
+          Free 14-day trial · No credit card required · Windows coming soon
         </p>
       </div>
 
@@ -67,12 +64,12 @@ export default function Home() {
       {/* HOW IT WORKS */}
       <section style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>How It Works</p>
-        <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Three steps to better interviews</h2>
+        <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Three steps to better practice</h2>
         <div className="grid-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
           {[
-            { num: "01", title: "Open a problem", body: "Paste in any LeetCode or interview problem. CodeWhisper reads it and gets ready to coach." },
-            { num: "02", title: "Get guided, not spoonfed", body: "Ask for a hint. CodeWhisper nudges your thinking with questions and patterns, the way a great interviewer would." },
-            { num: "03", title: "Build real understanding", body: "Walk away knowing why the solution works, not just what it is. That's what gets you the job." },
+            { num: "01", title: "Open a problem", body: "Paste in any LeetCode or HackerRank problem. CodeWhisper reads it and gets ready to coach." },
+            { num: "02", title: "Get guided, not spoonfed", body: "Ask for a hint, or just start coding — CodeWhisper flags likely bugs and edge cases as you go, and nudges your thinking with questions and patterns." },
+            { num: "03", title: "Build real understanding", body: "When you run into an error, CodeWhisper explains what went wrong in plain language. Walk away knowing why the solution works, not just what it is." },
           ].map((step) => (
             <div key={step.num}>
               <p style={{ fontSize: 13, fontWeight: 700, color: colors.purple, letterSpacing: 2, marginBottom: 12 }}>{step.num}</p>
@@ -88,15 +85,15 @@ export default function Home() {
       {/* FEATURES */}
       <section id="features" style={{ padding: "80px clamp(16px, 5vw, 48px)", maxWidth: 1100, margin: "0 auto" }}>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Features</p>
-        <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Everything you need to interview with confidence.</h2>
+        <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Everything you need to practice with confidence.</h2>
         <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
           {[
             { title: "4-level hint ladder", body: "Nudge → pattern → code skeleton → near-complete solution. Clicks the same level twice? Goes deeper, not in circles." },
-            { title: "Interview Mode (LIVE)", body: "Hands-free coaching during mock interviews. Watches your screen every 12 seconds, nudges when you're stuck, escalates automatically." },
-            { title: "Auto-escalating hints", body: "In LIVE mode, hints get more direct the longer you're stuck — from a Socratic question all the way to a working code skeleton." },
+            { title: "Real-time bug & edge-case flags", body: "CodeWhisper watches your code as you write it and flags likely bugs and unhandled edge cases before you hit run." },
+            { title: "Plain-language error explanations", body: "When your code fails, CodeWhisper reads the output and explains what went wrong — no more parsing stack traces alone." },
             { title: "Problem Solved tracking", body: "Click ✓ Solved when LeetCode accepts your answer. Saved to history with a green check so you can track your wins." },
             { title: "Always-on-top overlay", body: "Floats over your browser while you code. No alt-tabbing, no distractions — just guidance when you need it." },
-            { title: "Invisible during screen share", body: "CodeWhisper is excluded from screen capture — it won't appear in Zoom, OBS, or any recording tool on macOS." },
+            { title: "Pattern tracking", body: "Session history highlights which problem types and bug patterns you keep hitting, so you know exactly what to drill next." },
             { title: "Session history", body: "Every problem you've worked through is saved. Reload any session and pick up exactly where you left off, hint level and all." },
             { title: "Algorithm pattern library", body: "10 built-in patterns with templates — sliding window, two pointers, BFS/DFS, dynamic programming, and more." },
             { title: "macOS now · Windows soon", body: "Native macOS desktop app available now. Windows support is in development and coming soon." },
@@ -116,11 +113,10 @@ export default function Home() {
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 3, color: colors.purple, textTransform: "uppercase", marginBottom: 16 }}>Pricing</p>
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 12 }}>Simple pricing</h2>
         <p style={{ fontSize: 16, color: colors.gray, marginBottom: 48 }}>No tricks. No tiers. Just the tool you need.</p>
-        <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 20 }}>
+        <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 320px))", justifyContent: "center", gap: 20, marginBottom: 20 }}>
           {[
-            { name: "Free Trial", price: "$0", period: "/ 7 days", features: ["7 days free", "Unlimited sessions", "Full hint ladder", "No credit card required"], featured: false },
-            { name: "Pro", price: "$9", period: "/ month", features: ["Unlimited sessions", "Full hint ladder", "Session history", "Pattern library", "Priority support"], featured: false },
-            { name: "Lifetime", price: "$79", period: "one-time", features: ["Everything in Pro", "Lifetime updates", "No recurring fee", "Pay once, own it forever"], featured: true },
+            { name: "Free Trial", price: "$0", period: "/ 14 days", features: ["14 days free", "Unlimited sessions", "Full hint ladder", "No credit card required"], featured: false },
+            { name: "Pro", price: "$5", period: "/ month", features: ["Unlimited sessions", "Full hint ladder", "Session history", "Pattern library", "Priority support"], featured: true },
           ].map((plan) => (
             <div key={plan.name} style={{ background: colors.cream, border: `${plan.featured ? 2 : 1}px solid ${plan.featured ? colors.purple : colors.purpleBorder}`, borderRadius: 20, padding: "32px 28px", position: "relative" }}>
               {plan.featured && (
@@ -146,7 +142,6 @@ export default function Home() {
           ))}
         </div>
         <p style={{ fontSize: 13, color: colors.grayLight, textAlign: "center" }}>All plans include the full CodeWhisper desktop app for macOS. Windows coming soon. Pricing in USD.</p>
-        <p style={{ fontSize: 12, color: colors.grayLight, textAlign: "center", opacity: 0.7, marginTop: 6 }}>App installs as <strong style={{ color: colors.gray }}>"Lens"</strong> to keep a low profile.</p>
       </section>
 
       <hr style={{ border: "none", borderTop: `1px solid ${colors.purpleBorder}`, margin: "0 48px" }} />
@@ -157,10 +152,9 @@ export default function Home() {
         <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 700, letterSpacing: -1, marginBottom: 48 }}>Common questions</h2>
         <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "left" }}>
           {[
-            { q: "What is Interview Mode (LIVE)?", a: "LIVE mode watches your screen every 12 seconds and coaches you hands-free — no typing needed. Hints auto-escalate the longer you're stuck, from a gentle nudge to a code skeleton. After 20 coaching cycles it gives you the full solution. The session auto-ends after 3 minutes of inactivity." },
-            { q: "Does it work during real interviews?", a: "Interview Mode is designed as a thinking aid — it helps you understand the problem faster, not cheat. You're responsible for following your interviewer's rules. That said, CodeWhisper is invisible during screen share on macOS, so it won't appear in Zoom or any recording tool." },
+            { q: "Can I use this during a real interview or exam?", a: "No — CodeWhisper is built for solo practice only. It's not designed for, and shouldn't be used during, any real, proctored, or interviewer-observed session." },
             { q: "Is my screen recorded or sent anywhere?", a: "No. Screen capture and OCR happen entirely on your device. Nothing is sent to our servers except your coaching messages." },
-            { q: "What interview formats does it support?", a: "Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in or use Screen OCR to capture it automatically." },
+            { q: "What problem formats does it support?", a: "Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in or use Screen OCR to capture it automatically." },
             { q: "What if I cancel Pro?", a: "You keep access until the end of your billing period. No questions asked." },
           ].map((item) => (
             <details key={item.q} style={{ borderBottom: `1px solid ${colors.purpleBorder}`, padding: "20px 0" }}>

@@ -50,7 +50,7 @@ export function UpgradePrompt() {
 
       <div>
         <h2 className="text-sm font-semibold text-tx-primary">
-          Your 7-day trial has ended
+          Your 14-day trial has ended
         </h2>
         <p className="text-xs text-tx-tertiary mt-1 max-w-[240px]">
           Upgrade to CodeWhisper Pro for unlimited sessions, full hint ladder, and session history.

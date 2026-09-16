@@ -65,7 +65,7 @@ export default function App() {
 
     // Compute trial days remaining from signup date
     if (user.created_at) {
-      const trialEnd = new Date(new Date(user.created_at).getTime() + 7 * 24 * 60 * 60 * 1000);
+      const trialEnd = new Date(new Date(user.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
       const msLeft = trialEnd.getTime() - Date.now();
       setTrialDaysRemaining(Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))));
     }
