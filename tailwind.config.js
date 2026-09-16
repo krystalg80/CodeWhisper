@@ -7,10 +7,10 @@ export default {
         // These map to CSS variables — both themes work automatically
         surface: {
           base:    "var(--bg-base)",
-          raised:  "var(--bg-raised)",
+          raised:  "rgb(var(--bg-raised-rgb) / <alpha-value>)",
           overlay: "var(--bg-overlay)",
           muted:   "var(--bg-muted)",
-          border:  "var(--border)",
+          border:  "rgb(var(--border-rgb) / <alpha-value>)",
         },
         tx: {
           primary:   "var(--text-primary)",
