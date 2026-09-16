@@ -28,7 +28,7 @@ export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
           <span className="text-sm font-semibold text-gradient tracking-tight">
             CodeWhisper
           </span>
-          {!isPro && trialDaysRemaining > 0 && (
+          {!hideControls && !isPro && trialDaysRemaining > 0 && (
             <span
               className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
               style={{
@@ -40,7 +40,7 @@ export function TitleBar({ hideControls }: { hideControls?: boolean } = {}) {
               {trialDaysRemaining}d trial
             </span>
           )}
-          {currentSession && (
+          {!hideControls && currentSession && (
             <span className="text-xs truncate max-w-[90px]" style={{ color: "var(--text-tertiary)" }}>
               · {currentSession.title}
             </span>

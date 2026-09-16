@@ -53,6 +53,7 @@ export default function App() {
   useEffect(() => {
     if (!user) {
       setIsPro(false);
+      setTrialDaysRemaining(0);
       return;
     }
 
