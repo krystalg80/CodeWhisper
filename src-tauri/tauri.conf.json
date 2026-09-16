@@ -61,7 +61,7 @@
     "macOS": {
       "entitlements": "entitlements.plist",
       "exceptionDomain": "",
-      "signingIdentity": null,
+      "signingIdentity": "Developer ID Application: Krystal Galdamez (RW8V25RJY7)",
       "providerShortName": null
     }
   },
