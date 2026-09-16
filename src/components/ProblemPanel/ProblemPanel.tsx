@@ -6,8 +6,10 @@ import { captureScreen, extractTextFromScreenshot } from "@/lib/tauri";
 import { supabase } from "@/lib/supabase";
 
 export function ProblemPanel() {
-  const { problemText, setProblemText, analyzeProblem, analysis, isAnalyzing, currentSession, startNewSession } =
-    useSessionStore();
+  const {
+    problemText, setProblemText, analyzeProblem, analysis, isAnalyzing, currentSession, startNewSession,
+    currentCode, setCurrentCode,
+  } = useSessionStore();
   const { setLastScreenshot } = useAppStore();
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState<string | null>(null);
@@ -122,6 +124,9 @@ export function ProblemPanel() {
           </div>
         )}
 
+        <p className="text-xs font-semibold text-tx-tertiary uppercase tracking-wider mb-1.5">
+          Problem statement
+        </p>
         <textarea
           ref={textareaRef}
           value={problemText}
@@ -133,6 +138,20 @@ The AI coach will help you think through it — step by step."
                      resize-none outline-none placeholder:text-tx-tertiary
                      min-h-[120px]"
           style={{ fontFamily: "inherit" }}
+        />
+
+        <div className="h-px bg-surface-border/60 my-3" />
+
+        <p className="text-xs font-semibold text-tx-tertiary uppercase tracking-wider mb-1.5">
+          Your code
+        </p>
+        <textarea
+          value={currentCode}
+          onChange={(e) => setCurrentCode(e.target.value)}
+          placeholder="Paste your current solution here — the coach sees this on every message."
+          className="w-full bg-surface-muted text-tx-secondary text-xs font-mono leading-relaxed
+                     resize-none outline-none placeholder:text-tx-tertiary
+                     rounded-lg px-2.5 py-2 min-h-[100px]"
         />
 
         {/* AI Analysis results */}

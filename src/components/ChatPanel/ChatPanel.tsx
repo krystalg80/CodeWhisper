@@ -17,7 +17,7 @@ export function ChatPanel() {
   const { setActiveTab } = useAppStore();
   const { formatted: elapsed } = useSessionTimer();
   const [input, setInput] = useState("");
-  const [showCode, setShowCode] = useState(false);
+  const [showCode, setShowCode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
