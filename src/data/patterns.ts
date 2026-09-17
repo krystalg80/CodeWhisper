@@ -52,7 +52,7 @@ for right in range(len(arr)):
     time_complexity: "O(n)",
     space_complexity: "O(1)",
     example_problems: [
-      "LeetCode 1 – Two Sum (sorted variant)",
+      "LeetCode 167 – Two Sum II - Input Array Is Sorted",
       "LeetCode 15 – 3Sum",
       "LeetCode 11 – Container With Most Water",
       "LeetCode 125 – Valid Palindrome",
