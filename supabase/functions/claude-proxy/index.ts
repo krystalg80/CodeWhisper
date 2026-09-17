@@ -44,7 +44,7 @@ serve(async (req) => {
     const isPro = Boolean(license);
 
     // Parse request body
-    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level } = await req.json();
+    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level, prior_feedback } = await req.json();
 
     // ── Extract action — clean raw OCR text into just the problem statement ──
     if (action === "extract") {
@@ -119,6 +119,86 @@ Required JSON shape:
       const raw = claudeData.content?.find((b: { type: string }) => b.type === "text")?.text ?? "";
 
       return new Response(raw, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ── Live Coach tick — extract problem/code from the screen and, if the code
+    // changed meaningfully, give one piece of direct, real-time review feedback.
+    // This is a passive/automatic feature: the user turned Live Coach on, it's
+    // not hidden from them, and it only ever operates on their own screen during
+    // their own solo practice — no live-interview/proctored-session use case.
+    if (action === "live_tick") {
+      if (!screen_text?.trim()) throw new Error("screen_text is required for live_tick");
+
+      if (!isPro) {
+        const trialEnd = new Date(new Date(user.created_at).getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+        if (new Date() > trialEnd) {
+          return new Response(
+            JSON.stringify({ error: "free_limit_reached", message: "Your 14-day trial has ended. Upgrade to Pro for unlimited sessions." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      const feedbackHistory = Array.isArray(prior_feedback) && prior_feedback.length > 0
+        ? prior_feedback.map((f: string) => `- ${f}`).join("\n")
+        : "(none yet)";
+
+      const liveTickPrompt = `You are watching a user's screen while they practice a coding problem entirely on their own — no interviewer, no grader, just them and their editor. Raw OCR text from their screen follows; it's noisy and may include browser chrome, notifications, a problem statement (e.g. from LeetCode), and/or their code editor content, all mixed together.
+
+Do three things:
+1. If a clean coding problem statement (title, description, examples, constraints) is visible, extract it. If none is visible, or it's unchanged from PRIOR PROBLEM STATEMENT below, return PRIOR PROBLEM STATEMENT unchanged.
+2. Extract the user's code exactly as written in their editor — verbatim, don't fix it, don't complete it, don't add anything they haven't typed.
+3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short, direct piece of feedback — a specific bug, an unhandled edge case, or a concrete reason it would fail if run right now. Be direct: this is real-time code review, not a withheld hint, so name the actual issue. Do NOT repeat anything already listed under RECENT FEEDBACK ALREADY GIVEN. If the code hasn't meaningfully changed, has no new issues, or you have nothing new to add, return an empty string for "message".
+
+PRIOR PROBLEM STATEMENT:
+${problem_text || "(none captured yet)"}
+
+PRIOR CODE:
+${current_code || "(none yet)"}
+
+RECENT FEEDBACK ALREADY GIVEN (do not repeat these points):
+${feedbackHistory}
+
+RAW OCR TEXT FROM SCREEN:
+${screen_text}
+
+Respond with ONLY valid JSON, no markdown fencing:
+{"problem_text": "...", "code": "...", "message": "..."}`;
+
+      const claudeResp = await fetch(CLAUDE_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
+          "anthropic-version": ANTHROPIC_VERSION,
+        },
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 1024,
+          system: "You extract structured data from noisy screen OCR and give terse, direct code review feedback. Respond only with valid JSON, no markdown fencing, no commentary outside the JSON object.",
+          messages: [{ role: "user", content: liveTickPrompt }],
+        }),
+      });
+
+      if (!claudeResp.ok) throw new Error(`Claude API error: ${await claudeResp.text()}`);
+      const claudeData = await claudeResp.json();
+      const raw = claudeData.content?.find((b: { type: string }) => b.type === "text")?.text ?? "{}";
+
+      let parsed: { problem_text?: string; code?: string; message?: string };
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        parsed = { problem_text, code: current_code, message: "" };
+      }
+
+      return new Response(
+        JSON.stringify({
+          problem_text: parsed.problem_text ?? problem_text ?? "",
+          code: parsed.code ?? current_code ?? "",
+          message: parsed.message ?? "",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // ── Coaching action ───────────────────────────────────────────────────────

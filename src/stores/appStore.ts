@@ -44,6 +44,10 @@ interface AppStore {
   setCapturing: (v: boolean) => void;
   setLastScreenshot: (s: string | null) => void;
 
+  // Live Coach — watches the screen while the user codes and gives real-time feedback
+  isLiveCoach: boolean;
+  toggleLiveCoach: () => void;
+
   // Audio
   isListening: boolean;
   setListening: (v: boolean) => void;
@@ -96,6 +100,9 @@ export const useAppStore = create<AppStore>()(
       lastScreenshot: null,
       setCapturing: (v) => set({ isCapturing: v }),
       setLastScreenshot: (s) => set({ lastScreenshot: s }),
+
+      isLiveCoach: false,
+      toggleLiveCoach: () => set((s) => ({ isLiveCoach: !s.isLiveCoach })),
 
       isListening: false,
       setListening: (v) => set({ isListening: v }),

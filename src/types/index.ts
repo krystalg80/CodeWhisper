@@ -22,6 +22,7 @@ export interface ChatMessage {
   content: string;
   hint_level?: number;
   timestamp: string;
+  is_auto?: boolean; // true for Live Coach auto-generated review messages (not persisted)
 }
 
 // ── Claude ────────────────────────────────────────────────────────────────────

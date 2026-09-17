@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/dpi";
 import { useAppStore } from "@/stores/appStore";
+import { useLiveCoach } from "@/hooks/useLiveCoach";
 import { CollapsedBubble } from "./CollapsedBubble";
 import { ExpandedPanel } from "./ExpandedPanel";
 
@@ -12,6 +13,7 @@ const COLLAPSED_H = 64;
 
 export function OverlayWindow() {
   const { isExpanded } = useAppStore();
+  useLiveCoach();
 
   useEffect(() => {
     const win = getCurrentWindow();

@@ -1,18 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { Camera, Sparkles, Loader2, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Eye, EyeOff, Sparkles, Loader2, X } from "lucide-react";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useAppStore } from "@/stores/appStore";
-import { captureScreen, extractTextFromScreenshot } from "@/lib/tauri";
-import { supabase } from "@/lib/supabase";
 
 export function ProblemPanel() {
   const {
     problemText, setProblemText, analyzeProblem, analysis, isAnalyzing, currentSession, startNewSession,
     currentCode, setCurrentCode,
   } = useSessionStore();
-  const { setLastScreenshot } = useAppStore();
-  const [ocrLoading, setOcrLoading] = useState(false);
-  const [ocrError, setOcrError] = useState<string | null>(null);
+  const { isLiveCoach, toggleLiveCoach } = useAppStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea
@@ -23,43 +19,11 @@ export function ProblemPanel() {
     }
   }, [problemText]);
 
-  const handleScreenCapture = async () => {
-    setOcrError(null);
-    setOcrLoading(true);
-    try {
-      const screenshot = await captureScreen();
-      setLastScreenshot(screenshot.base64_png);
-      const ocrResult = await extractTextFromScreenshot(screenshot.base64_png);
-      if (!ocrResult.text.trim()) {
-        setOcrError("No text detected. Try manually pasting the problem.");
-        return;
-      }
-
-      // Clean the raw OCR noise via Claude before displaying
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-      try {
-        const { data: sessionData } = await supabase!.auth.getSession();
-        const token = sessionData.session?.access_token ?? anonKey;
-        const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-            "apikey": anonKey,
-          },
-          body: JSON.stringify({ action: "extract", screen_text: ocrResult.text }),
-        });
-        const data = await resp.json();
-        setProblemText(data.text?.trim() || ocrResult.text);
-      } catch {
-        setProblemText(ocrResult.text);
-      }
-    } catch (err) {
-      setOcrError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setOcrLoading(false);
+  const handleToggleLiveCoach = async () => {
+    if (!isLiveCoach && !currentSession) {
+      await startNewSession();
     }
+    toggleLiveCoach();
   };
 
   const handleAnalyze = async () => {
@@ -74,19 +38,18 @@ export function ProblemPanel() {
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-surface-border/60">
         <button
-          onClick={handleScreenCapture}
-          disabled={ocrLoading}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs
-                     bg-surface-raised hover:bg-surface-muted text-tx-secondary hover:text-tx-primary
-                     transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Capture screen and extract problem via OCR"
+          onClick={handleToggleLiveCoach}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors
+                     ${isLiveCoach
+                       ? "bg-ca-teal/15 text-ca-teal border border-ca-teal/30"
+                       : "bg-surface-raised hover:bg-surface-muted text-tx-secondary hover:text-tx-primary"
+                     }`}
+          title={isLiveCoach
+            ? "Live Coach is watching your screen — click to stop"
+            : "Watch your screen and give real-time feedback as your code changes"}
         >
-          {ocrLoading ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : (
-            <Camera size={12} />
-          )}
-          {ocrLoading ? "Cleaning up..." : "Screen OCR"}
+          {isLiveCoach ? <Eye size={12} className="animate-pulse" /> : <EyeOff size={12} />}
+          {isLiveCoach ? "Watching..." : "Live Coach"}
         </button>
 
         <button
@@ -118,12 +81,6 @@ export function ProblemPanel() {
 
       {/* Problem input */}
       <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3">
-        {ocrError && (
-          <div className="mb-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-            {ocrError}
-          </div>
-        )}
-
         <p className="text-xs font-semibold text-tx-tertiary uppercase tracking-wider mb-1.5">
           Problem statement
         </p>

@@ -26,6 +26,7 @@ interface SessionStore {
   setCurrentCode: (code: string) => void;
   requestHint: () => Promise<void>;
   sendMessage: (message: string) => Promise<void>;
+  applyLiveTick: (screenText: string) => Promise<void>;
   analyzeProblem: () => Promise<void>;
   loadSessions: () => Promise<void>;
   loadSession: (id: string) => Promise<void>;
@@ -78,6 +79,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     });
 
     set({ currentSession: null, messages: [], hintLevel: 1, analysis: null });
+    useAppStore.setState({ isLiveCoach: false });
     get().loadSessions();
   },
 
@@ -227,6 +229,65 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       set({ messages: [...get().messages, errMsg] });
     } finally {
       set({ isSendingMessage: false });
+    }
+  },
+
+  applyLiveTick: async (screenText: string) => {
+    const { currentSession, problemText, currentCode, messages, isSendingMessage } = get();
+    if (isSendingMessage || !currentSession) return;
+    const session = currentSession;
+
+    try {
+      if (!supabase) throw new Error("Supabase not configured");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) return;
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+      const priorFeedback = messages
+        .filter((m) => m.is_auto && m.role === "assistant")
+        .slice(-3)
+        .map((m) => m.content);
+
+      const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "apikey": anonKey,
+        },
+        body: JSON.stringify({
+          action: "live_tick",
+          screen_text: screenText,
+          problem_text: problemText,
+          current_code: currentCode,
+          prior_feedback: priorFeedback,
+        }),
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) return;
+
+      const updates: Partial<SessionStore> = {};
+      // Only fill in the problem statement if we don't already have one —
+      // don't clobber a user-pasted/edited problem with re-extracted noise.
+      if (data.problem_text && !problemText.trim()) updates.problemText = data.problem_text;
+      if (typeof data.code === "string" && data.code.trim()) updates.currentCode = data.code;
+      if (Object.keys(updates).length > 0) set(updates);
+
+      if (data.message?.trim()) {
+        const saved = await tauriApi.saveMessage({
+          sessionId: session.id,
+          role: "assistant",
+          content: data.message,
+        });
+        set({ messages: [...get().messages, { ...saved, is_auto: true }] });
+        useAppStore.getState().setActiveTab("chat");
+      }
+    } catch (err) {
+      console.error("Live Coach tick error:", err);
     }
   },
 

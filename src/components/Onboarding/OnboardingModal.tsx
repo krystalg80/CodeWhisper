@@ -32,14 +32,15 @@ const STEPS: Step[] = [
     ],
   },
   {
-    title: "Step 2 — Capture the Problem",
-    emoji: "📸",
+    title: "Step 2 — Turn on Live Coach",
+    emoji: "👁️",
     description:
-      "Open a coding problem in your browser (LeetCode, HackerRank, etc.), then let CodeWhisper read it automatically.",
+      "Open a coding problem in your browser (LeetCode, HackerRank, etc.) next to your editor, then click 'Live Coach' on the Problem tab.",
     tips: [
-      "Go to the Problem tab",
-      "Click 'Screen OCR' to auto-capture the problem text",
-      "Or paste the problem manually if OCR misses something",
+      "Live Coach watches your screen and auto-fills the problem statement and your code as you type",
+      "It speaks up in the Coach tab with a bug or edge case whenever your code changes meaningfully",
+      "Click it again anytime to stop — nothing is captured while it's off",
+      "Or skip it entirely and paste the problem/code manually",
       "Hit 'AI Analyze' to get difficulty, patterns, and constraints",
     ],
   },
