@@ -44,7 +44,7 @@ serve(async (req) => {
     const isPro = Boolean(license);
 
     // Parse request body
-    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level, prior_feedback } = await req.json();
+    const { action, messages, user_message, problem_text, current_code, screen_text, hint_level, prior_feedback, attempt_count } = await req.json();
 
     // ── Extract action — clean raw OCR text into just the problem statement ──
     if (action === "extract") {
@@ -143,12 +143,25 @@ Required JSON shape:
         ? prior_feedback.map((f: string) => `- ${f}`).join("\n")
         : "(none yet)";
 
+      // Escalate gradually the longer the user's been checked in on, like a hint
+      // ladder — never jump straight to a full working solution unprompted.
+      const tick = Number(attempt_count ?? 1);
+      const feedbackTier = tick <= 2
+        ? `Ask ONE short conceptual question, or name — in plain English, no code — what's structurally still missing (e.g. "you don't have anything tracking values you've already seen yet"). Do not write any code at all.`
+        : tick <= 4
+        ? `Point at the specific bug or missing piece more directly (e.g. name the exact line or the specific edge case), still in plain English. At most one short inline snippet (a few words, not a statement) if it's unavoidable — no multi-line code.`
+        : `Give a short code skeleton (3-6 lines) with the core logic left as a comment or blank for them to fill in themselves — e.g. "// look up target - nums[i] in your map here". Never write the complete, ready-to-run solution — always leave the key computation for them to write.`;
+
       const liveTickPrompt = `You are watching a user's screen while they practice a coding problem entirely on their own — no interviewer, no grader, just them and their editor. Raw OCR text from their screen follows; it's noisy and may include browser chrome, notifications, a problem statement (e.g. from LeetCode), and/or their code editor content, all mixed together.
 
 Do three things:
 1. If a clean coding problem statement (title, description, examples, constraints) is visible, extract it. If none is visible, or it's unchanged from PRIOR PROBLEM STATEMENT below, return PRIOR PROBLEM STATEMENT unchanged.
 2. Extract the user's code exactly as written in their editor — verbatim, don't fix it, don't complete it, don't add anything they haven't typed.
-3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short, direct piece of feedback — a specific bug, an unhandled edge case, or a concrete reason it would fail if run right now. Be direct: this is real-time code review, not a withheld hint, so name the actual issue. Do NOT repeat anything already listed under RECENT FEEDBACK ALREADY GIVEN. If the code hasn't meaningfully changed, has no new issues, or you have nothing new to add, return an empty string for "message".
+3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short piece of feedback about a specific bug, unhandled edge case, or concrete reason it would fail if run right now — following this pacing rule based on how long they've been stuck:
+
+${feedbackTier}
+
+This check-in has happened ${tick} time(s) so far this session — pace your specificity accordingly using the rule above, don't skip ahead of it. Do NOT repeat anything already listed under RECENT FEEDBACK ALREADY GIVEN. If the code hasn't meaningfully changed, has no new issues, or you have nothing new to add, return an empty string for "message".
 
 PRIOR PROBLEM STATEMENT:
 ${problem_text || "(none captured yet)"}

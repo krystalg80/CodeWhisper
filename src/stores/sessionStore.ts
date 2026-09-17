@@ -14,6 +14,7 @@ interface SessionStore {
   analysis: ProblemAnalysis | null;
   isAnalyzing: boolean;
   isSendingMessage: boolean;
+  liveCoachTickCount: number;
 
   // History
   sessions: Session[];
@@ -44,6 +45,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   analysis: null,
   isAnalyzing: false,
   isSendingMessage: false,
+  liveCoachTickCount: 0,
   sessions: [],
   isLoadingSessions: false,
 
@@ -58,6 +60,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       messages: [],
       hintLevel: 1,
       analysis: null,
+      liveCoachTickCount: 0,
     });
     useAppStore.getState().setActiveTab("chat");
   },
@@ -78,7 +81,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       hintLevelReached: get().hintLevel,
     });
 
-    set({ currentSession: null, messages: [], hintLevel: 1, analysis: null });
+    set({ currentSession: null, messages: [], hintLevel: 1, analysis: null, liveCoachTickCount: 0 });
     useAppStore.setState({ isLiveCoach: false });
     get().loadSessions();
   },
@@ -233,9 +236,11 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   applyLiveTick: async (screenText: string) => {
-    const { currentSession, problemText, currentCode, messages, isSendingMessage } = get();
+    const { currentSession, problemText, currentCode, messages, isSendingMessage, liveCoachTickCount } = get();
     if (isSendingMessage || !currentSession) return;
     const session = currentSession;
+    const nextTick = liveCoachTickCount + 1;
+    set({ liveCoachTickCount: nextTick });
 
     try {
       if (!supabase) throw new Error("Supabase not configured");
@@ -264,6 +269,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
           problem_text: problemText,
           current_code: currentCode,
           prior_feedback: priorFeedback,
+          attempt_count: nextTick,
         }),
       });
 
