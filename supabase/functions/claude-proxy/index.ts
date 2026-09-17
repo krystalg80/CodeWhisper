@@ -157,11 +157,14 @@ Required JSON shape:
 Do three things:
 1. If a clean coding problem statement (title, description, examples, constraints) is visible, extract it. If none is visible, or it's unchanged from PRIOR PROBLEM STATEMENT below, return PRIOR PROBLEM STATEMENT unchanged.
 2. Extract the user's code exactly as written in their editor — verbatim, don't fix it, don't complete it, don't add anything they haven't typed.
-3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short piece of feedback about a specific bug, unhandled edge case, or concrete reason it would fail if run right now — following this pacing rule based on how long they've been stuck:
+3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short piece of feedback — but first decide what KIND of issue it is:
+
+   - **Syntax/language error** (wrong language's syntax, a method/property/builtin that doesn't exist in this language, a typo, a real typo-level mistake): these aren't part of the algorithmic insight worth protecting. State the correct fix directly and plainly, every time, regardless of tick count — e.g. "TypeScript arrays don't have .length() as a function, use the .length property: nums.length". Never turn a basic syntax fact into a guessing game.
+   - **Algorithmic/logic issue** (wrong approach, missing data structure, unhandled edge case, wrong return value): pace your specificity using this rule based on how long they've been stuck:
 
 ${feedbackTier}
 
-This check-in has happened ${tick} time(s) so far this session — pace your specificity accordingly using the rule above, don't skip ahead of it. Do NOT repeat anything already listed under RECENT FEEDBACK ALREADY GIVEN. If the code hasn't meaningfully changed, has no new issues, or you have nothing new to add, return an empty string for "message".
+This check-in has happened ${tick} time(s) so far this session — pace ALGORITHMIC feedback accordingly, don't skip ahead of it (syntax errors are always direct, see above regardless of tick count). Check RECENT FEEDBACK ALREADY GIVEN below: if you've already made essentially the same point twice (even worded differently), stop rephrasing it as a question — just state the direct answer this time instead of asking a third variation. If the code hasn't meaningfully changed, has no new issues, or you have nothing new to add, return an empty string for "message".
 
 PRIOR PROBLEM STATEMENT:
 ${problem_text || "(none captured yet)"}

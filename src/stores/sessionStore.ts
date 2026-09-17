@@ -253,7 +253,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
       const priorFeedback = messages
         .filter((m) => m.is_auto && m.role === "assistant")
-        .slice(-3)
+        .slice(-5)
         .map((m) => m.content);
 
       const resp = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
