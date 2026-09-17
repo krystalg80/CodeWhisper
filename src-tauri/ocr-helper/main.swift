@@ -31,7 +31,10 @@ let request = VNRecognizeTextRequest { request, error in
 }
 
 request.recognitionLevel = .accurate
-request.usesLanguageCorrection = true
+// Language correction biases recognized text toward statistically common natural-language
+// patterns (e.g. "i" over "j", since it's a far more common single-letter token) — actively
+// wrong for reading source code verbatim, where every character must be exact.
+request.usesLanguageCorrection = false
 
 let handler = VNImageRequestHandler(url: url, options: [:])
 do {
