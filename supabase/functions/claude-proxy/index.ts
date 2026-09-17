@@ -159,6 +159,8 @@ Do three things:
 2. Extract the user's code exactly as written in their editor — verbatim, don't fix it, don't complete it, don't add anything they haven't typed.
 3. Compare the extracted code to PRIOR CODE below. If it changed in a meaningful way, give ONE short piece of feedback — but first decide what KIND of issue it is:
 
+   **Before writing anything about a specific variable, line, or token: this task is highly prone to hallucinating common-looking bugs that aren't actually there** — e.g. assuming a nested loop with variables i and j must be buggy and returning [i, i], because that's a common real mistake in this exact problem, even when the code you just extracted in step 2 actually says [i, j]. Re-read the EXACT code string you extracted (not your assumption of what similar code usually looks like) before naming any variable in your feedback. If you cannot point to the literal substring in the extracted code that supports your claim, don't make the claim — return an empty message instead.
+
    - **Syntax/language error** (wrong language's syntax, a method/property/builtin that doesn't exist in this language, a typo, a real typo-level mistake): these aren't part of the algorithmic insight worth protecting. State the correct fix directly and plainly, every time, regardless of tick count — e.g. "TypeScript arrays don't have .length() as a function, use the .length property: nums.length". Never turn a basic syntax fact into a guessing game.
    - **Algorithmic/logic issue** (wrong approach, missing data structure, unhandled edge case, wrong return value): pace your specificity using this rule based on how long they've been stuck:
 
@@ -178,8 +180,8 @@ ${feedbackHistory}
 RAW OCR TEXT FROM SCREEN:
 ${screen_text}
 
-Respond with ONLY valid JSON, no markdown fencing:
-{"problem_text": "...", "code": "...", "message": "..."}`;
+Respond with ONLY valid JSON, no markdown fencing. "evidence" must be the exact literal substring of "code" (copy-pasted, character for character) that your "message" is based on — leave both "evidence" and "message" as empty strings if you have nothing to say:
+{"problem_text": "...", "code": "...", "evidence": "...", "message": "..."}`;
 
       const claudeResp = await fetch(CLAUDE_API_URL, {
         method: "POST",
@@ -200,18 +202,24 @@ Respond with ONLY valid JSON, no markdown fencing:
       const claudeData = await claudeResp.json();
       const raw = claudeData.content?.find((b: { type: string }) => b.type === "text")?.text ?? "{}";
 
-      let parsed: { problem_text?: string; code?: string; message?: string };
+      let parsed: { problem_text?: string; code?: string; evidence?: string; message?: string };
       try {
         parsed = JSON.parse(raw);
       } catch {
         parsed = { problem_text, code: current_code, message: "" };
       }
 
+      const finalCode = parsed.code ?? current_code ?? "";
+      // Guard against hallucinated feedback: only trust the message if the model's
+      // cited evidence is an actual, verifiable substring of the code it extracted.
+      const evidenceVerified = !parsed.message?.trim()
+        || (parsed.evidence?.trim() && finalCode.includes(parsed.evidence.trim()));
+
       return new Response(
         JSON.stringify({
           problem_text: parsed.problem_text ?? problem_text ?? "",
-          code: parsed.code ?? current_code ?? "",
-          message: parsed.message ?? "",
+          code: finalCode,
+          message: evidenceVerified ? (parsed.message ?? "") : "",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
