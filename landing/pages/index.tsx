@@ -156,6 +156,7 @@ export default function Home() {
             { q: "Is my screen recorded or sent anywhere?", a: "No. Screen capture and OCR happen entirely on your device. Nothing is sent to our servers except your coaching messages." },
             { q: "What problem formats does it support?", a: "Any text-based problem — LeetCode, HackerRank, Codewars, or plain text. Just paste it in or use Screen OCR to capture it automatically." },
             { q: "What if I cancel Pro?", a: "You keep access until the end of your billing period. No questions asked." },
+            { q: "Running into an issue or have a question?", a: "Email hello@codewhisper-ai.com and we'll help you sort it out." },
           ].map((item) => (
             <details key={item.q} style={{ borderBottom: `1px solid ${colors.purpleBorder}`, padding: "20px 0" }}>
               <summary style={{ fontSize: 16, fontWeight: 600, color: colors.navy, cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

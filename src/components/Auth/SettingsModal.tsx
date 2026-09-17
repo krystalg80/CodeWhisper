@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, CheckCircle, AlertCircle, Loader2, Sun, Moon, LogOut, Mail, KeyRound, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { X, CheckCircle, AlertCircle, Loader2, Sun, Moon, LogOut, Mail, KeyRound, CreditCard, ChevronDown, ChevronUp, LifeBuoy } from "lucide-react";
 import { open } from "@tauri-apps/plugin-shell";
 import { useAppStore } from "@/stores/appStore";
 import { validateLicenseKey } from "@/lib/tauri";
@@ -402,6 +402,28 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               <LogOut size={13} />
               Sign out
             </button>
+          </section>
+
+          {/* Help & Support */}
+          <section className="space-y-2 pt-1">
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+              Help & Support
+            </h3>
+            <button
+              onClick={() => open(`mailto:hello@codewhisper-ai.com?subject=${encodeURIComponent("CodeWhisper Support")}`)}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-colors"
+              style={{
+                background: "var(--bg-raised)",
+                border: "1px solid var(--border)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              <LifeBuoy size={13} />
+              Contact support
+            </button>
+            <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+              Opens your email app addressed to hello@codewhisper-ai.com
+            </p>
           </section>
         </div>
       </div>
