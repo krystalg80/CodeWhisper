@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, CheckCircle, AlertCircle, Loader2, Sun, Moon, LogOut, Mail, KeyRound, CreditCard, ChevronDown, ChevronUp, LifeBuoy } from "lucide-react";
 import { open } from "@tauri-apps/plugin-shell";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore } from "@/stores/appStore";
 import { validateLicenseKey } from "@/lib/tauri";
 import { signOut, updatePassword, updateEmail } from "@/lib/supabase";
@@ -34,6 +35,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     setSupportError(null);
     try {
       await open(`mailto:hello@codewhisper-ai.com?subject=${encodeURIComponent("CodeWhisper Support")}`);
+      // CodeWhisper is always-on-top, so whatever app/window handles the mailto:
+      // link (browser, Mail.app, etc.) would otherwise be hidden underneath it.
+      await getCurrentWindow().hide();
     } catch (err) {
       setSupportError(
         err instanceof Error ? err.message : "Couldn't open your email app — email hello@codewhisper-ai.com directly."
@@ -94,6 +98,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     try {
       const url = await createPortalSession();
       await open(url);
+      await getCurrentWindow().hide();
     } catch (err) {
       setPortalError(err instanceof Error ? err.message : "Couldn't open billing portal");
     } finally {

@@ -3,6 +3,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { signInWithEmail, signUpWithEmail, supabase } from "@/lib/supabase";
 import { open } from "@tauri-apps/plugin-shell";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 interface Props {
   onSuccess: () => void;
@@ -33,8 +34,10 @@ export function AuthModal({ onSuccess }: Props) {
       if (err) throw err;
       if (!data.url) throw new Error("No OAuth URL returned");
 
-      // Open in system browser
+      // Open in system browser — hide our always-on-top window so the browser
+      // is actually visible; the deep-link handler re-shows it on callback.
       await open(data.url);
+      await getCurrentWindow().hide();
 
       // Listen for the deep link callback (codewhisper://auth/callback?code=...)
       const unlisten = await listen<string[]>("oauth-deep-link", async (event) => {
