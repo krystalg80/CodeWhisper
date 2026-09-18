@@ -28,6 +28,19 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [openingPortal, setOpeningPortal] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
+  const [supportError, setSupportError] = useState<string | null>(null);
+
+  const handleContactSupport = async () => {
+    setSupportError(null);
+    try {
+      await open(`mailto:hello@codewhisper-ai.com?subject=${encodeURIComponent("CodeWhisper Support")}`);
+    } catch (err) {
+      setSupportError(
+        err instanceof Error ? err.message : "Couldn't open your email app — email hello@codewhisper-ai.com directly."
+      );
+    }
+  };
+
   const toggleForm = (form: "password" | "email") => {
     setPasswordStatus(null);
     setEmailStatus(null);
@@ -410,7 +423,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               Help & Support
             </h3>
             <button
-              onClick={() => open(`mailto:hello@codewhisper-ai.com?subject=${encodeURIComponent("CodeWhisper Support")}`)}
+              onClick={handleContactSupport}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-colors"
               style={{
                 background: "var(--bg-raised)",
@@ -421,9 +434,16 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               <LifeBuoy size={13} />
               Contact support
             </button>
-            <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
-              Opens your email app addressed to hello@codewhisper-ai.com
-            </p>
+            {supportError ? (
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--accent-red)" }}>
+                <AlertCircle size={12} />
+                {supportError}
+              </div>
+            ) : (
+              <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+                Opens your email app addressed to hello@codewhisper-ai.com
+              </p>
+            )}
           </section>
         </div>
       </div>

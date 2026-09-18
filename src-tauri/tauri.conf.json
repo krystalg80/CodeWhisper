@@ -71,6 +71,9 @@
       "desktop": {
         "schemes": ["codewhisper"]
       }
+    },
+    "shell": {
+      "open": true
     }
   }
 }
