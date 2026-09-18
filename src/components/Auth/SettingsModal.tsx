@@ -29,19 +29,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [openingPortal, setOpeningPortal] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
-  const [supportError, setSupportError] = useState<string | null>(null);
+  const [supportCopied, setSupportCopied] = useState(false);
 
   const handleContactSupport = async () => {
-    setSupportError(null);
+    // mailto: depends on the OS having a registered mail handler, which isn't
+    // reliable across machines — copying the address always works.
     try {
-      await open(`mailto:hello@codewhisper-ai.com?subject=${encodeURIComponent("CodeWhisper Support")}`);
-      // CodeWhisper is always-on-top, so whatever app/window handles the mailto:
-      // link (browser, Mail.app, etc.) would otherwise be hidden underneath it.
-      await getCurrentWindow().hide();
-    } catch (err) {
-      setSupportError(
-        err instanceof Error ? err.message : "Couldn't open your email app — email hello@codewhisper-ai.com directly."
-      );
+      await navigator.clipboard.writeText("hello@codewhisper-ai.com");
+      setSupportCopied(true);
+      setTimeout(() => setSupportCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable — the address is shown as text below either way
     }
   };
 
@@ -431,24 +429,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               onClick={handleContactSupport}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-colors"
               style={{
-                background: "var(--bg-raised)",
-                border: "1px solid var(--border)",
-                color: "var(--text-secondary)",
+                background: supportCopied ? "color-mix(in srgb, var(--accent-teal) 15%, transparent)" : "var(--bg-raised)",
+                border: `1px solid ${supportCopied ? "color-mix(in srgb, var(--accent-teal) 30%, transparent)" : "var(--border)"}`,
+                color: supportCopied ? "var(--accent-teal)" : "var(--text-secondary)",
               }}
             >
-              <LifeBuoy size={13} />
-              Contact support
+              {supportCopied ? <CheckCircle size={13} /> : <LifeBuoy size={13} />}
+              {supportCopied ? "Copied!" : "Copy support email"}
             </button>
-            {supportError ? (
-              <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--accent-red)" }}>
-                <AlertCircle size={12} />
-                {supportError}
-              </div>
-            ) : (
-              <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
-                Opens your email app addressed to hello@codewhisper-ai.com
-              </p>
-            )}
+            <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+              hello@codewhisper-ai.com — paste it into your email app
+            </p>
           </section>
         </div>
       </div>
